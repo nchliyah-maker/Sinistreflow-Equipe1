@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Back-office sinistres - MutuAlp Assurances</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M2 28 L12 12 L18 20 L23 13 L32 28 Z" fill="#01baef"/>
+      <path d="M12 12 L15 16.5 L9 16.5 Z" fill="#fff"/>
+    </svg>
+    <div class="brand">MutuAlp Assurances<small>Back-office gestionnaires</small></div>
+    <nav><span id="whoami"></span> <a href="#" id="logout" class="hidden">Déconnexion</a></nav>
+  </header>
+
+  <main class="wide">
+    <div id="error" class="alert error hidden" role="alert"></div>
+
+    <section id="login" class="card" style="max-width:420px;margin:40px auto">
+      <h1>Connexion gestionnaire</h1>
+      <form id="login-form">
+        <div class="field"><label for="user">Identifiant</label><input type="text" id="user" required></div>
+        <div class="field"><label for="password">Mot de passe</label><input type="password" id="password" required></div>
+        <div class="actions"><span></span><button type="submit">Se connecter</button></div>
+      </form>
+    </section>
+
+    <section id="app" class="hidden">
+      <div class="layout">
+        <div class="card">
+          <h1>Dossiers sinistres</h1>
+          <form class="toolbar" id="filters">
+            <input type="text" id="q" placeholder="Référence, n° de contrat ou nom de l'assuré">
+            <select id="status">
+              <option value="">Tous les statuts</option>
+              <option>DECLARE</option><option>EN_INSTRUCTION</option><option>EXPERTISE_EN_COURS</option>
+              <option>EXPERTISE_TERMINEE</option><option>ACCEPTE</option><option>REFUSE</option>
+              <option>INDEMNISE</option><option>CLOS</option>
+            </select>
+            <button type="submit">Rechercher</button>
+          </form>
+          <table>
+            <thead><tr><th>Référence</th><th>Contrat</th><th>Type</th><th>Survenu le</th><th>Statut</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <div class="pager">
+            <button class="secondary small" id="prev">Précédent</button>
+            <span id="page-info"></span>
+            <button class="secondary small" id="next">Suivant</button>
+          </div>
+        </div>
+        <div class="card" id="detail">
+          <p class="lead">Sélectionnez un dossier pour afficher son détail.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/js/backoffice.js"></script>
+</body>
+</html>

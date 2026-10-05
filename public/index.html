@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Déclarer un sinistre - MutuAlp Assurances</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M2 28 L12 12 L18 20 L23 13 L32 28 Z" fill="#01baef"/>
+      <path d="M12 12 L15 16.5 L9 16.5 Z" fill="#fff"/>
+    </svg>
+    <div class="brand">MutuAlp Assurances<small>Espace sinistres</small></div>
+    <nav><a href="/backoffice.html">Accès gestionnaire</a></nav>
+  </header>
+
+  <main>
+    <div class="card">
+      <h1>Déclarer un sinistre</h1>
+      <p class="lead">Votre déclaration en ligne en 5 minutes. Un gestionnaire vous recontacte sous 48 h.</p>
+
+      <ol class="stepper" id="stepper">
+        <li data-step="1">1. Identification</li>
+        <li data-step="2">2. Le sinistre</li>
+        <li data-step="3">3. Circonstances</li>
+        <li data-step="4">4. Validation</li>
+      </ol>
+
+      <div id="error" class="alert error hidden" role="alert" data-testid="error"></div>
+
+      <!-- Étape 1 -->
+      <form id="step-1" class="step" data-step="1" novalidate>
+        <h2>Identifiez-vous</h2>
+        <div class="field">
+          <label for="contractNumber">Numéro de contrat</label>
+          <input type="text" id="contractNumber" name="contractNumber" placeholder="MA-AUTO-001234" required>
+          <div class="hint">Il figure sur votre attestation d'assurance.</div>
+        </div>
+        <div class="field">
+          <label for="email">Adresse email</label>
+          <input type="email" id="email" name="email" placeholder="prenom.nom@exemple.fr" required>
+        </div>
+        <div class="actions">
+          <span></span>
+          <button type="submit" data-testid="next-1">Continuer</button>
+        </div>
+      </form>
+
+      <!-- Étape 2 -->
+      <form id="step-2" class="step hidden" data-step="2" novalidate>
+        <h2>Que s'est-il passé ?</h2>
+        <p class="lead" id="holder-greeting"></p>
+        <div class="row">
+          <div class="field">
+            <label for="type">Type de sinistre</label>
+            <select id="type" name="type" required></select>
+          </div>
+          <div class="field">
+            <label for="incidentDate">Date du sinistre</label>
+            <input type="date" id="incidentDate" name="incidentDate" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="incidentLocation">Lieu du sinistre</label>
+          <input type="text" id="incidentLocation" name="incidentLocation" placeholder="Adresse, ville">
+        </div>
+        <fieldset id="vehicle-fields" class="hidden" style="border:0;padding:0;margin:0">
+          <div class="row3">
+            <div class="field">
+              <label for="plate">Immatriculation</label>
+              <input type="text" id="plate" name="plate" placeholder="AB-123-CD">
+            </div>
+            <div class="field">
+              <label for="brand">Marque</label>
+              <input type="text" id="brand" name="brand">
+            </div>
+            <div class="field">
+              <label for="model">Modèle</label>
+              <input type="text" id="model" name="model">
+            </div>
+          </div>
+        </fieldset>
+        <div class="actions">
+          <button type="button" class="secondary" data-back="1">Retour</button>
+          <button type="submit" data-testid="next-2">Continuer</button>
+        </div>
+      </form>
+
+      <!-- Étape 3 -->
+      <form id="step-3" class="step hidden" data-step="3" novalidate>
+        <h2>Circonstances</h2>
+        <div class="field">
+          <label for="description">Décrivez les circonstances et les dommages</label>
+          <textarea id="description" name="description" required></textarea>
+          <div class="hint">20 caractères minimum.</div>
+        </div>
+        <div class="field hidden" id="complaint-field">
+          <label for="complaintNumber">Numéro de dépôt de plainte</label>
+          <input type="text" id="complaintNumber" name="complaintNumber" placeholder="PV-2026-01234">
+          <div class="hint">Obligatoire en cas de vol ou de cambriolage.</div>
+        </div>
+        <div class="field">
+          <label class="checkbox"><input type="checkbox" id="thirdPartyInvolved" name="thirdPartyInvolved"> Un tiers est impliqué</label>
+        </div>
+        <div class="row hidden" id="third-party-fields">
+          <div class="field">
+            <label for="thirdPartyName">Nom du tiers</label>
+            <input type="text" id="thirdPartyName" name="thirdPartyName">
+          </div>
+          <div class="field">
+            <label for="thirdPartyInsurer">Assureur du tiers</label>
+            <input type="text" id="thirdPartyInsurer" name="thirdPartyInsurer">
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" data-back="2">Retour</button>
+          <button type="submit" data-testid="next-3">Continuer</button>
+        </div>
+      </form>
+
+      <!-- Étape 4 -->
+      <form id="step-4" class="step hidden" data-step="4" novalidate>
+        <h2>Estimation et validation</h2>
+        <div class="field">
+          <label for="estimatedAmount">Montant estimé des dommages (€)</label>
+          <input type="text" id="estimatedAmount" name="estimatedAmount" inputmode="decimal" placeholder="ex : 1 250,50">
+          <div class="hint">Facultatif. Votre estimation sera vérifiée par un expert.</div>
+        </div>
+        <h2>Récapitulatif</h2>
+        <dl class="recap" id="recap"></dl>
+        <div class="field" style="margin-top:20px">
+          <label class="checkbox"><input type="checkbox" id="certify" name="certify"> Je certifie l'exactitude des informations déclarées</label>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" data-back="3">Retour</button>
+          <button type="submit" id="submit" data-testid="submit">Envoyer ma déclaration</button>
+        </div>
+      </form>
+
+      <!-- Confirmation -->
+      <section id="step-5" class="step hidden" data-step="5" data-testid="confirmation">
+        <div class="alert success">Votre déclaration a bien été enregistrée.</div>
+        <p>Référence de votre dossier :</p>
+        <div class="reference" id="confirm-reference" data-testid="reference"></div>
+        <dl class="recap" id="confirm-recap"></dl>
+        <div id="late-warning" class="alert warning hidden" style="margin-top:16px">
+          Votre déclaration a été faite au-delà du délai contractuel. Elle sera étudiée par un gestionnaire.
+        </div>
+        <div class="actions"><span></span><button type="button" id="restart">Nouvelle déclaration</button></div>
+      </section>
+    </div>
+  </main>
+
+  <footer>MutuAlp Assurances - Mutuelle d'assurance régie par le Code des assurances - SinistreFlow</footer>
+  <script src="/js/wizard.js"></script>
+</body>
+</html>

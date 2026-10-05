@@ -1,0 +1,79 @@
+# SinistreFlow
+
+Plateforme de **déclaration et de suivi des sinistres** de **MutuAlp Assurances** (mutuelle fictive,
+région Auvergne-Rhône-Alpes, ~45 000 sociétaires).
+
+- Les **assurés** déclarent leurs sinistres en ligne (formulaire en 4 étapes).
+- Les **gestionnaires** instruisent les dossiers dans le back-office.
+- Les **partenaires** (cabinets d'expertise) récupèrent les dossiers et déposent leurs rapports via
+  l'**API partenaires** versionnée (v1, v2, v3).
+
+---
+
+## ✉️ Note de passation (Thomas R., lead dev, parti le 29/08/2026)
+
+> Salut la nouvelle équipe,
+>
+> Je vous laisse SinistreFlow. Ça tourne en prod depuis 2021, ça a été codé vite, par beaucoup de
+> monde, et il n'y a jamais eu ni CI, ni supervision, ni vraie stratégie de tests. Désolé.
+>
+> - Le dump de prod anonymisé est dans `db/dump/` (voir `db/README.md`). **Testez avec lui**, pas
+>   avec une base vide, la prod a 5 ans d'historique.
+> - Les migrations sont dans `migrations/`. La 10 (comptes partenaires) a été mergée la semaine où je
+>   suis parti, elle n'a **jamais été passée en prod**.
+> - Le connecteur d'**ExpertAuto** (`partner-client/`) tourne chez nous mais **c'est leur code** :
+>   interdiction contractuelle d'y toucher. S'il plante, c'est nous qui avons cassé quelque chose.
+> - Le support a ouvert une pile de tickets (`docs/TICKETS.md`). Certains sont liés entre eux.
+> - Le CTO veut supprimer les API v1 et v2 « pour simplifier ». Je n'ai pas eu le temps de regarder
+>   qui les utilise vraiment… lisez `docs/API.md` avant de faire quoi que ce soit.
+> - Le `docker-compose.yml`, je l'utilisais juste pour la base. L'appli, je la lançais avec `npm start`.
+>
+> Bon courage. — Thomas
+
+---
+
+## Démarrage rapide (méthode « historique »)
+
+Prérequis : Node.js ≥ 20, Docker Desktop (ou Docker Engine), Python 3 (pour le connecteur partenaire).
+
+```bash
+npm install
+docker compose up -d db          # base PostgreSQL 16
+bash db/restore.sh               # restaure le dump de production
+npm run migrate                  # migrations en attente
+npm start                        # http://localhost:3000
+```
+
+| URL | Quoi |
+|-----|------|
+| http://localhost:3000/ | formulaire de déclaration (assurés) |
+| http://localhost:3000/backoffice.html | back-office (gestionnaires) |
+| http://localhost:3000/health | état de l'application |
+| http://localhost:3000/api/v1 … /api/v3 | API partenaires (en-tête `X-API-Key`) |
+
+## Arborescence
+
+```
+src/
+  index.js, app.js        démarrage du serveur, assemblage Express
+  config.js               configuration (variables d'environnement)
+  db/                     pool PostgreSQL, script de migration
+  domain/                 règles métier pures (dates, montants, workflow, indemnité)
+  repositories/           accès SQL
+  services/               orchestration métier
+  api/                    routes HTTP : public/, internal/, v1/, v2/, v3/, middlewares/
+public/                   front (HTML/CSS/JS sans framework)
+migrations/               scripts SQL numérotés
+db/                       dump de production + script de restauration
+partner-client/           connecteur ExpertAuto (NE PAS MODIFIER)
+tests/                    tests (presque vide...)
+docs/                     documentation fonctionnelle et technique
+```
+
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — composants, modèle de données, workflow
+- [`docs/API.md`](docs/API.md) — contrats des API partenaires v1 / v2 / v3
+- [`docs/TICKETS.md`](docs/TICKETS.md) — tickets ouverts par le support
+- [`db/README.md`](db/README.md) — dump, restauration, comptes de démonstration
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — règles Git de l'équipe

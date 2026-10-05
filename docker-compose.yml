@@ -1,0 +1,23 @@
+# Stack de dev SinistreFlow (Thomas - "ça marche chez moi")
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sinistreflow
+      POSTGRES_PASSWORD: Mutu@lp2021!
+      POSTGRES_DB: sinistreflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
