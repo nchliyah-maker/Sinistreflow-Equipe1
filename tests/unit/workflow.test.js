@@ -6,8 +6,17 @@ describe('workflow des dossiers', () => {
     expect(canTransition('DECLARE', 'EN_INSTRUCTION')).toBe(true);
   });
 
-  test('un dossier refusé peut être indemnisé (geste commercial)', () => {
-    expect(canTransition('REFUSE', 'INDEMNISE')).toBe(true);
+  test('SF-105 : un dossier refusé ne peut pas être indemnisé', () => {
+    expect(canTransition('REFUSE', 'INDEMNISE')).toBe(false);
+    expect(() => assertTransition('REFUSE', 'INDEMNISE')).toThrow('Transition interdite');
+  });
+
+  test('SF-105 : un dossier refusé peut seulement être clos', () => {
+    expect(canTransition('REFUSE', 'CLOS')).toBe(true);
+  });
+
+  test('SF-105 : seul un dossier accepté peut être indemnisé', () => {
+    expect(canTransition('ACCEPTE', 'INDEMNISE')).toBe(true);
   });
 
   test('un dossier clos ne bouge plus', () => {
