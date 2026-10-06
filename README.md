@@ -85,6 +85,9 @@ Le pipeline `.github/workflows/ci.yml` tourne sur chaque Pull Request et sur `ma
 restaurée depuis le dump, puis `partner` qui construit l'image, démarre la stack et exécute le
 connecteur ExpertAuto non modifié.
 
+Sur `main` uniquement, le job `docker` publie l'image sur GitHub Container Registry :
+`ghcr.io/nchliyah-maker/sinistreflow-equipe1:<sha du commit>` (et `:latest`).
+
 Secrets à définir dans *Settings → Secrets and variables → Actions* : `DB_PASSWORD`,
 `BACKOFFICE_PASSWORD` (valeurs libres, propres à la CI) et `EXPERTAUTO_API_KEY`.
 
