@@ -1,0 +1,27 @@
+const { defineConfig, devices } = require('@playwright/test');
+
+// Port dédié aux tests end-to-end, pour ne pas dépendre d'un "npm start" déjà lancé
+const PORT = process.env.E2E_PORT || '3100';
+
+module.exports = defineConfig({
+  testDir: 'tests/e2e',
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  reporter: [['list'], ['html', { open: 'never' }]],
+  use: {
+    baseURL: `http://localhost:${PORT}`,
+    locale: 'fr-FR',
+    timezoneId: 'Europe/Paris',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+  },
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  webServer: {
+    command: 'node src/index.js',
+    url: `http://localhost:${PORT}/health`,
+    env: { PORT, TZ: 'Europe/Paris' },
+    reuseExistingServer: false,
+    timeout: 30000,
+  },
+});

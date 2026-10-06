@@ -160,7 +160,7 @@
       incidentDate: state.incidentDate,
       incidentLocation: state.incidentLocation,
       description: state.description,
-      complaintNumber: state.complaint_number,
+      complaintNumber: state.complaintNumber,
       thirdParty: {
         involved: state.thirdPartyInvolved,
         name: state.thirdPartyName,
