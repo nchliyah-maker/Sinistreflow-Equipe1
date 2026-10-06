@@ -6,18 +6,31 @@ services:
       POSTGRES_USER: sinistreflow
       POSTGRES_PASSWORD: Mutu@lp2021!
       POSTGRES_DB: sinistreflow
+    # Lié à 127.0.0.1 : la base reste utilisable depuis le poste (tests, psql)
+    # mais n'est plus joignable depuis l'extérieur de la machine.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sinistreflow -d sinistreflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     env_file: .env
+    environment:
+      # Dans un conteneur, localhost désigne le conteneur lui-même :
+      # la base se joint par le nom de son service.
+      DB_HOST: db
+      DB_PORT: "5432"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
