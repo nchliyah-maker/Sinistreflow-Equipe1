@@ -38,3 +38,31 @@ describe('SF-202 : l\'application trouve la base dans docker compose', () => {
     services.app.ports.forEach((port) => expect(port.host_ip).toBe('127.0.0.1'));
   });
 });
+
+describe('SF-206 : les migrations sont jouées à chaque déploiement', () => {
+  let services;
+
+  beforeAll(() => {
+    services = composeConfig();
+  });
+
+  test('un service "migrate" lance le script de migration', () => {
+    expect(services.migrate).toBeDefined();
+    expect(services.migrate.command.join(' ')).toContain('src/db/migrate.js');
+  });
+
+  test('le service "migrate" s\'exécute une seule fois, quand la base est prête', () => {
+    expect(services.migrate.restart).toBe('no');
+    expect(services.migrate.depends_on.db.condition).toBe('service_healthy');
+    expect(services.migrate.environment.DB_HOST).toBe('db');
+  });
+
+  test('l\'application ne démarre que si les migrations ont réussi', () => {
+    expect(services.app.depends_on.migrate.condition).toBe('service_completed_successfully');
+  });
+
+  test('l\'application a un healthcheck qui interroge /health', () => {
+    expect(services.app.healthcheck).toBeDefined();
+    expect(services.app.healthcheck.test.join(' ')).toContain('/health');
+  });
+});

@@ -18,6 +18,20 @@ services:
       timeout: 3s
       retries: 10
 
+  # Joue les migrations en attente puis s'arrête (code 0 si tout va bien).
+  # L'application ne démarre qu'après : plus besoin de "penser à" lancer npm run migrate.
+  migrate:
+    build: .
+    command: ["node", "src/db/migrate.js"]
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   app:
     build: .
     ports:
@@ -31,6 +45,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   pgdata:
