@@ -98,7 +98,7 @@ async function findDetailedByReference(reference) {
 
 /** Liste paginée (page commence à 1). */
 async function list({ status = null, page = 1, limit = 20 } = {}) {
-  const offset = page * limit;
+  const offset = (page - 1) * limit;
   const where = status ? 'WHERE c.status = $1' : '';
   const params = status ? [status] : [];
 
