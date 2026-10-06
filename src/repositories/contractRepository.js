@@ -6,7 +6,7 @@ async function findByNumberAndEmail(contractNumber, email) {
     `SELECT c.*, p.first_name, p.last_name, p.email
      FROM contracts c
      JOIN policyholders p ON p.id = c.policyholder_id
-     WHERE c.contract_number = $1 AND p.email = $2`,
+     WHERE c.contract_number = $1 AND LOWER(p.email) = LOWER($2)`,
     [String(contractNumber || '').trim().toUpperCase(), String(email || '').trim()],
   );
   return rows[0] || null;
