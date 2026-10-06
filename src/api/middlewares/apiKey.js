@@ -7,7 +7,7 @@ const { UnauthorizedError } = require('../../domain/errors');
  */
 module.exports = async function apiKeyAuth(req, res, next) {
   try {
-    const apiKey = req.headers['X-API-Key'];
+    const apiKey = req.headers['x-api-key'];
     if (!apiKey) throw new UnauthorizedError('Clé API manquante');
 
     const partner = await partnerRepository.findActiveByApiKey(apiKey);
