@@ -18,7 +18,7 @@ function isFutureDate(value, now = new Date()) {
 
 /** Nombre de jours pleins entre deux dates. */
 function daysBetween(from, to) {
-  return Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60));
+  return Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 /** Formate une date (colonne SQL DATE) en "AAAA-MM-JJ" pour l'API. */
