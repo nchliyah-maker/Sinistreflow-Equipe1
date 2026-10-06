@@ -64,6 +64,12 @@ Ce que j'en retiens :
 - J'avais créé le dépôt sur mon compte gratuit, mais on ne peut pas protéger une
   branche sur un dépôt privé sans compte payant. J'ai dû recréer le dépôt sur un
   compte Pro, ça m'a fait perdre du temps.
+- npm run migrate échouait avec "authentification par mot de passe échouée pour
+  l'utilisateur sinistreflow". Le message était en français alors que l'image
+  Docker de PostgreSQL répond en anglais : j'avais déjà PostgreSQL installé sur
+  Windows, qui occupait le port 5432. L'appli se connectait donc à lui et pas à la
+  base Docker. J'ai arrêté les services Windows et redémarré le conteneur db, après
+  ça la migration est passée.
 - npm install annonce 28 vulnérabilités "high". Je n'ai pas lancé npm audit fix
   pour ne pas modifier les dépendances en dehors d'un ticket.
 
