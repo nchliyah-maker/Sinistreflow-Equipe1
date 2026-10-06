@@ -20,7 +20,7 @@ function toV2(claim) {
     description: claim.description,
     estimatedAmountCents: claim.estimated_amount_cents,
     indemnityCents: claim.indemnity_cents,
-    vehiclePlate: claim.immatriculation,
+    vehiclePlate: claim.plate_number,
     lateDeclaration: claim.late_declaration,
     thirdParty: {
       involved: claim.third_party_involved,

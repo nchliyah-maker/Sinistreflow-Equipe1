@@ -20,7 +20,7 @@ function toV1(claim) {
     statut: claim.status,
     description: claim.description,
     montant_estime: centsToEuros(claim.estimated_amount_cents),
-    immatriculation: claim.immatriculation,
+    immatriculation: claim.plate_number,
   };
 }
 

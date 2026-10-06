@@ -1,9 +1,12 @@
 const db = require('../db/pool');
 
+// La plaque vient de vehicles.plate_number, seule source de vérité depuis la migration 8
+// (voir docs/adr/0001-versioning-api.md). claims.immatriculation n'est plus lue.
 const BASE_SELECT = `
-  SELECT c.*, ct.contract_number, ct.product, ct.franchise_eur
+  SELECT c.*, ct.contract_number, ct.product, ct.franchise_eur, v.plate_number
   FROM claims c
-  JOIN contracts ct ON ct.id = c.contract_id`;
+  JOIN contracts ct ON ct.id = c.contract_id
+  LEFT JOIN vehicles v ON v.claim_id = c.id`;
 
 /** Génère la prochaine référence de dossier : SIN-<année>-<numéro sur 6 chiffres> */
 async function nextReference(client) {
