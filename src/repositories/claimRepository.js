@@ -119,12 +119,12 @@ async function search(q, { page = 1, limit = 20 } = {}) {
     FROM claims c
     JOIN contracts ct ON ct.id = c.contract_id
     JOIN policyholders p ON p.id = ct.policyholder_id
-    WHERE c.reference ILIKE '%${q}%'
-       OR ct.contract_number ILIKE '%${q}%'
-       OR p.last_name ILIKE '%${q}%'
+    WHERE c.reference ILIKE $1
+       OR ct.contract_number ILIKE $1
+       OR p.last_name ILIKE $1
     ORDER BY c.declared_at DESC
-    LIMIT ${Number(limit)} OFFSET ${Number(offset)}`;
-  const { rows } = await db.query(sql);
+    LIMIT $2 OFFSET $3`;
+  const { rows } = await db.query(sql, [`%${q}%`, limit, offset]);
   return rows;
 }
 
