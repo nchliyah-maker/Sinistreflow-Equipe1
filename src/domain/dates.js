@@ -24,7 +24,12 @@ function daysBetween(from, to) {
 /** Formate une date (colonne SQL DATE) en "AAAA-MM-JJ" pour l'API. */
 function formatDate(date) {
   if (!date) return null;
-  return date.toISOString().slice(0, 10);
+  // Une colonne DATE est lue à minuit heure locale : toISOString() la convertirait
+  // en UTC et renverrait la veille. On lit donc l'année, le mois et le jour locaux.
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 module.exports = { parseIsoDate, isFutureDate, daysBetween, formatDate };
