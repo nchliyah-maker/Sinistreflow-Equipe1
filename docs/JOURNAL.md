@@ -64,10 +64,6 @@ Ce que j'en retiens :
 - J'avais créé le dépôt sur mon compte gratuit, mais on ne peut pas protéger une
   branche sur un dépôt privé sans compte payant. J'ai dû recréer le dépôt sur un
   compte Pro, ça m'a fait perdre du temps.
-- npm run migrate échouait avec "authentification par mot de passe échouée pour
-  l'utilisateur sinistreflow". En fait j'avais déjà PostgreSQL installé sur Windows qui prenait le port 5432, donc l'appli se connectait à lui
-  et pas à la base Docker. J'ai arrêté les deux services Windows et redémarré le
-  conteneur db, après ça la migration est passée.
 - npm install annonce 28 vulnérabilités "high". Je n'ai pas lancé npm audit fix
   pour ne pas modifier les dépendances en dehors d'un ticket.
 
@@ -147,19 +143,12 @@ Le dossier SIN-2026-000450 a été remis dans son état d'origine après la vér
 
 ### Ce qui m'a bloquée
 
-- Mon premier test pour SF-107 était rouge pour une mauvaise raison : j'avais écrit
-  res.body.dossiers alors que le champ s'appelle data, donc le test plantait sur
-  une erreur JavaScript et pas sur le bug. Je retiens qu'il faut lire le message
-  d'échec avant de corriger.
-- Après un correctif, l'application lancée avec npm start tournait encore avec
-  l'ancien code. Il faut l'arrêter et la relancer pour voir le changement.
 - Les tests d'intégration et le connecteur modifient la vraie base locale. Les
   tests qui créent des dossiers les suppriment à la fin pour garder 425 dossiers.
 - Jest prenait aussi les fichiers du dossier tests/e2e. Réglé dans package.json
   pour que Jest et Playwright aient chacun leurs tests.
 - Les branches des derniers tickets étaient empilées les unes sur les autres, il a
   fallu fusionner les PR dans l'ordre.
-- J'avais oublié la description de la PR de SF-114, je l'ai ajoutée après la fusion.
 
 ### Indices ouverts
 
