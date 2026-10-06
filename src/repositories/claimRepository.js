@@ -8,8 +8,8 @@ const BASE_SELECT = `
 /** Génère la prochaine référence de dossier : SIN-<année>-<numéro sur 6 chiffres> */
 async function nextReference(client) {
   const year = new Date().getFullYear();
-  const { rows } = await client.query('SELECT COUNT(*) AS n FROM claims');
-  const next = parseInt(rows[0].n, 10) + 1;
+  const { rows } = await client.query("SELECT nextval('claim_reference_seq') AS n");
+  const next = parseInt(rows[0].n, 10);
   return `SIN-${year}-${String(next).padStart(6, '0')}`;
 }
 
