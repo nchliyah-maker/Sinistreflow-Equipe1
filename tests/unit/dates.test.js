@@ -1,4 +1,6 @@
-const { parseIsoDate, daysBetween } = require('../../src/domain/dates');
+process.env.TZ = 'Europe/Paris';
+
+const { parseIsoDate, daysBetween, formatDate } = require('../../src/domain/dates');
 const { isLateDeclaration } = require('../../src/domain/claimRules');
 
 describe('SF-102 : parseIsoDate', () => {
@@ -27,5 +29,24 @@ describe('SF-103 : délai de déclaration', () => {
   test('un vol est tardif à partir de 3 jours', () => {
     expect(isLateDeclaration('AUTO_VOL', '2026-10-01', new Date(2026, 9, 3))).toBe(false);
     expect(isLateDeclaration('AUTO_VOL', '2026-10-01', new Date(2026, 9, 4))).toBe(true);
+  });
+});
+
+describe('SF-111 : formatDate sans décalage de fuseau horaire', () => {
+  test('une date à minuit heure de Paris garde son jour', () => {
+    expect(formatDate(new Date(2026, 9, 2))).toBe('2026-10-02');
+  });
+
+  test('une date relue après parseIsoDate est identique', () => {
+    expect(formatDate(parseIsoDate('2026-10-02'))).toBe('2026-10-02');
+    expect(formatDate(parseIsoDate('2026-01-01'))).toBe('2026-01-01');
+  });
+
+  test('le 29 février est conservé', () => {
+    expect(formatDate(parseIsoDate('2024-02-29'))).toBe('2024-02-29');
+  });
+
+  test('une date absente donne null', () => {
+    expect(formatDate(null)).toBeNull();
   });
 });
