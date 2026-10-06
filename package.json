@@ -10,6 +10,7 @@
     "migrate": "node src/db/migrate.js",
     "test": "jest",
     "test:unit": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration --runInBand",
     "test:e2e": "playwright test"
   },
   "engines": {
