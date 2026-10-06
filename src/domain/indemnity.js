@@ -5,7 +5,8 @@
  * @returns {number} indemnité en centimes
  */
 function computeIndemnityCents(assessedAmountCents, franchiseEur) {
-  return assessedAmountCents - franchiseEur;
+  const franchiseCents = Math.round(Number(franchiseEur) * 100);
+  return Math.max(assessedAmountCents - franchiseCents, 0);
 }
 
 module.exports = { computeIndemnityCents };
