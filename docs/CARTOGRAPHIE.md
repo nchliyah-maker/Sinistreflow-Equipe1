@@ -43,25 +43,25 @@ Après restauration du dump et migration 10 :
 
 | Ticket | Reproduit ? | Comment je le reproduis                                                     | Fichier suspect                            |
 | ------ | ----------- | --------------------------------------------------------------------------- | ------------------------------------------ |
-| SF-101 | oui         | connecteur ExpertAuto : "Clé API manquante" alors que la clé est envoyée | src/api/middlewares/ (fonction apiKeyAuth) |
-| SF-114 | oui         | même appel : HTTP 500 au lieu de 401, avec la stack trace dans la réponse | à chercher                                |
-| SF-102 | pas encore  |                                                                             |                                            |
-| SF-103 | pas encore  |                                                                             |                                            |
-| SF-104 | pas encore  |                                                                             |                                            |
-| SF-105 | pas encore  |                                                                             |                                            |
-| SF-106 | pas encore  |                                                                             |                                            |
-| SF-107 | pas encore  |                                                                             |                                            |
-| SF-108 | pas encore  |                                                                             |                                            |
-| SF-109 | pas encore  |                                                                             |                                            |
-| SF-110 | pas encore  |                                                                             |                                            |
-| SF-111 | pas encore  |                                                                             |                                            |
-| SF-112 | pas encore  |                                                                             |                                            |
-| SF-113 | pas encore  |                                                                             |                                            |
-| SF-115 | pas encore  |                                                                             |                                            |
-| SF-301 | pas encore  |                                                                             |                                            |
-| SF-201 | pas encore  |                                                                             |                                            |
-| SF-202 | pas encore  |                                                                             |                                            |
-| SF-203 | pas encore  |                                                                             |                                            |
-| SF-204 | pas encore  |                                                                             |                                            |
-| SF-205 | pas encore  |                                                                             |                                            |
-| SF-206 | pas encore  |                                                                             |                                            |
+| SF-101 | oui | `curl -i -H "X-API-Key: <clé>" localhost:3000/api/v1/claims` : "Clé API manquante" | src/api/middlewares/apiKey.js |
+| SF-102 | oui | `parseIsoDate('2026-10-05')` renvoie le 5 novembre | src/domain/dates.js |
+| SF-103 | oui | `daysBetween` entre le 4 et le 5 octobre renvoie 24 | src/domain/dates.js |
+| SF-104 | oui | envoi d'une déclaration : "duplicate key value violates unique constraint" | src/repositories/claimRepository.js (nextReference) |
+| SF-105 | oui | back-office : bouton "→ INDEMNISE" proposé sur un dossier REFUSE (SIN-2024-000212) | src/domain/workflow.js |
+| SF-106 | oui | `computeIndemnityCents(100000, 150)` renvoie 99850 au lieu de 85000 | src/domain/indemnity.js |
+| SF-107 | oui | `/api/v1/claims?statut=EXPERTISE_EN_COURS&page=1&limit=20` : data vide, total 13 | src/repositories/claimRepository.js (list) |
+| SF-108 | oui | recherche back-office `D'Almeida` : erreur 500 "syntax error at or near Almeida" | src/repositories/claimRepository.js (search) |
+| SF-109 | oui | `/api/v1/claims/SIN-2026-000450` : immatriculation null (v2 : vehiclePlate null) | src/repositories/claimRepository.js, src/api/v1 et v2 |
+| SF-110 | oui | `/api/v2/claims/SIN-2026-000450` : estimatedAmountCents vaut "254900" (texte) | src/db/pool.js |
+| SF-111 | oui | même dossier : sinistre du 07/08/2026 en base, l'API renvoie 2026-08-06 | src/domain/dates.js (formatDate) |
+| SF-112 | oui | `POST /api/public/contracts/verify` avec camille.durand@example.test : 404 | src/repositories/contractRepository.js |
+| SF-113 | oui | `parseAmountToCents('1 250,50')` renvoie 100, `'19.99'` renvoie 1998 | src/domain/money.js |
+| SF-114 | oui | `curl -i localhost:3000/api/v1/claims` sans clé : 500 avec la stack trace | src/api/middlewares/errorHandler.js |
+| SF-115 | oui | `/health` répond UP sans interroger la base (vu dans le code) | src/api/health.js |
+| SF-301 | oui | formulaire, cambriolage avec numéro de plainte saisi : "numéro de plainte obligatoire" | public/js/wizard.js |
+| SF-201 | pas encore | vu au démarrage : "SinistreFlow démarré sur http://localhost:3000" | src/index.js |
+| SF-202 | pas encore | vu avec `docker compose ps` : port 0.0.0.0:5432 ouvert | docker-compose.yml |
+| SF-203 | pas encore | | |
+| SF-204 | pas encore | le fichier .env avec ses mots de passe est dans le dépôt | .env, src/config.js |
+| SF-205 | pas encore | | Dockerfile |
+| SF-206 | pas encore | | |
