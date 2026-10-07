@@ -35,3 +35,18 @@ describe('SF-115 : /health vérifie la base de données', () => {
     expect(JSON.stringify(res.body)).not.toMatch(/ECONNREFUSED|127\.0\.0\.1/);
   });
 });
+
+describe('/health répond vite, même quand la base ne répond plus du tout', () => {
+  test('base muette (connexion qui ne revient jamais) : 503 en moins de 3 secondes', async () => {
+    // Cas vu pendant le test de panne sur la VM : conteneur de la base arrêté,
+    // la tentative de connexion reste en attente au lieu d'être refusée.
+    jest.spyOn(db, 'query').mockImplementation(() => new Promise(() => {}));
+    const start = Date.now();
+
+    const res = await request(app).get('/health');
+
+    expect(res.status).toBe(503);
+    expect(res.body.database).toBe('DOWN');
+    expect(Date.now() - start).toBeLessThan(3000);
+  }, 10000);
+});
