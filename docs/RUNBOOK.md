@@ -3,9 +3,10 @@
 Ce document répond à trois questions : comment mettre en service, comment livrer une version,
 et quoi faire quand une alerte sonne.
 
-> État de validation : les commandes de déploiement, de retour arrière et de supervision ont été
-> répétées sur un poste de développement (voir `docs/preuves/`). Les étapes propres à la VM
-> (provisionnement, pare-feu, nginx) sont à cocher lors de la première mise en service.
+> État de validation : cette procédure a été exécutée le 07/10/2026 sur une VM Ubuntu 24.04 LTS
+> (VirtualBox, `deploy/vm/Vagrantfile`) : provisionnement, déploiement, connecteur à 25/25, test de panne
+> et retour arrière. Les sorties sont dans `docs/preuves/`. Reste à valider : le `docker pull` depuis GHCR
+> avec un jeton, et la notification Discord.
 
 ## 1. Vue d'ensemble
 

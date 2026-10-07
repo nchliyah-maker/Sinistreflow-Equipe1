@@ -1,0 +1,20 @@
+=== Scénario 3 : mauvaise livraison (image dont la commande de démarrage échoue)
+version en service avant : ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a
+2026-10-07 10:41:10  Déploiement de ghcr.io/nchliyah-maker/sinistreflow-equipe1:livraison-cassee (version en service : ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a)
+2026-10-07 10:41:10  2/4 Migrations puis démarrage de l'application
+container sinistreflow-app-1 is unhealthy
+2026-10-07 10:41:33  ÉCHEC : la stack n'a pas démarré (migrations ou application)
+migrate-1  | {"time":"2026-10-07T10:41:29.171Z","level":"info","msg":"migrations terminées"}
+app-1      | /bin/sh: [node,: not found
+app-1      | /bin/sh: [node,: not found
+2026-10-07 10:41:35  Retour arrière vers ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a
+2026-10-07 10:41:52  Retour arrière réussi : ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a est de nouveau en service.
+code retour de deploy.sh : 1
+durée totale : 42 s
+version en service après : ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a
+/health : 200
+historique des déploiements :
+2026-10-07 10:20:47	ghcr.io/nchliyah-maker/sinistreflow-equipe1:9645f5ea7f44658b5fd0966b53dd065da10220b6	OK
+2026-10-07 10:35:37	ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a	OK
+2026-10-07 10:41:33	ghcr.io/nchliyah-maker/sinistreflow-equipe1:livraison-cassee	ECHEC (la stack n'a pas démarré (migrations ou application))
+2026-10-07 10:41:52	ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a	RETOUR ARRIERE OK

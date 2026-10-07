@@ -1,0 +1,107 @@
+Test de panne n°1 : arrêt de PostgreSQL sur la VM (docker compose stop db)
+Une ligne toutes les 5 à 9 secondes : temps écoulé, code de /health, alertes actives dans Alertmanager, état des règles dans Prometheus.
+Heures de la VM (UTC).
+
+########## Version corrigée (/health limité à 2 secondes)
+=== 2026-10-07 10:35:50  état initial
++  1s  /health=200  alertmanager=0 active(s)  ApplicationInjoignable:pending, SanteEnEchec:pending
+=== 2026-10-07 10:35:51  PANNE : docker compose stop db
++  7s  /health=503  alertmanager=0 active(s)  aucune alerte
++ 15s  /health=503  alertmanager=0 active(s)  aucune alerte
++ 22s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 29s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 36s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 44s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 51s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 58s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 66s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 73s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 80s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 88s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 95s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++102s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++109s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++117s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++124s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++132s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++139s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++146s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++153s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++161s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
+=== 2026-10-07 10:38:33  REPRISE : docker compose start db
++  5s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 11s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 16s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 21s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 27s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 32s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 37s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 43s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 48s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 53s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
+=== 2026-10-07 10:39:28  fin
+app | Up 3 minutes (healthy)
+db | Up 55 seconds (healthy)
+
+########## Premier passage, avant correction : /health ne répondait pas dans les 4 secondes (000 = délai dépassé)
+=== 2026-10-07 10:24:40  état initial
++  0s  /health=200  alertmanager=0 active(s)  aucune alerte
+=== 2026-10-07 10:24:40  PANNE : docker compose stop db
++  9s  /health=000  alertmanager=0 active(s)  aucune alerte
++ 18s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 28s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 37s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 46s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 56s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 65s  /health=000  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 74s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++ 84s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++ 93s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++102s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++111s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++121s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++130s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++139s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++148s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++158s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++167s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++176s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++185s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++195s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++204s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++213s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++223s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++232s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++241s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++250s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++260s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++269s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++278s  /health=000  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
+=== 2026-10-07 10:29:21  REPRISE : docker compose start db
++  5s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++ 11s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++ 16s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, SanteEnEchec:firing
++ 21s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 27s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 32s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 37s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 43s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 48s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 53s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 58s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 64s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 69s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 74s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 80s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 85s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 90s  /health=200  alertmanager=0 active(s)  aucune alerte
++ 96s  /health=200  alertmanager=0 active(s)  aucune alerte
++101s  /health=200  alertmanager=0 active(s)  aucune alerte
++106s  /health=200  alertmanager=0 active(s)  aucune alerte
++111s  /health=200  alertmanager=0 active(s)  aucune alerte
++117s  /health=200  alertmanager=0 active(s)  aucune alerte
++122s  /health=200  alertmanager=0 active(s)  aucune alerte
++127s  /health=200  alertmanager=0 active(s)  aucune alerte
+=== 2026-10-07 10:31:31  fin
+app | Up 10 minutes (healthy)
+db | Up 2 minutes (healthy)

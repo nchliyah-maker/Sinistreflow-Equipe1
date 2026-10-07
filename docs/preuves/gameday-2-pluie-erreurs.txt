@@ -1,0 +1,10 @@
+=== Scénario 2 : pluie d'erreurs (200 appels avec une mauvaise clé API, depuis le poste, par nginx)
+2026-10-07 12:39:54  compteur 401 avant : 0
+2026-10-07 12:40:11  200 appels envoyés en 17 s, codes reçus :     200 401 
+2026-10-07 12:40:37  compteur 401 après : 200
+taux de 401 sur 1 min : 2.8612666666666664 req/s
+taux d erreurs 5xx : 0 %
+alertes : TauxErreurs5xxEleve:pending, LatenceP95Elevee:pending
+journaux (extrait) :
+400
+ {"time":"2026-10-07T10:40:11.530Z","level":"warn","msg":"requête refusée","method":"GET","path":"/api/v1/claims","status":401,"error":"Clé API invalide"}

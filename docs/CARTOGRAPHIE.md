@@ -59,9 +59,9 @@ Après restauration du dump et migration 10 :
 | SF-114 | oui | `curl -i localhost:3000/api/v1/claims` sans clé : 500 avec la stack trace | src/api/middlewares/errorHandler.js |
 | SF-115 | oui | `/health` répond UP sans interroger la base (vu dans le code) | src/api/health.js |
 | SF-301 | oui | formulaire, cambriolage avec numéro de plainte saisi : "numéro de plainte obligatoire" | public/js/wizard.js |
-| SF-201 | pas encore | vu au démarrage : "SinistreFlow démarré sur http://localhost:3000" | src/index.js |
-| SF-202 | pas encore | vu avec `docker compose ps` : port 0.0.0.0:5432 ouvert | docker-compose.yml |
-| SF-203 | pas encore | | |
-| SF-204 | pas encore | le fichier .env avec ses mots de passe est dans le dépôt | .env, src/config.js |
-| SF-205 | pas encore | | Dockerfile |
-| SF-206 | pas encore | | |
+| SF-201 | oui | conteneur démarré mais `curl http://127.0.0.1:3000/health` sans réponse | src/index.js |
+| SF-202 | oui | `docker compose ps` : port 0.0.0.0:5432 ouvert, et DB_HOST=localhost dans le conteneur | docker-compose.yml |
+| SF-203 | oui | `npm run migrate` sur une base vide : relation "expertises" does not exist | src/db/migrate.js |
+| SF-204 | oui | `git ls-files .env` : le fichier et ses mots de passe sont suivis par Git | .env, src/config.js, docker-compose.yml |
+| SF-205 | oui | `docker images` : 1,74 Go ; `whoami` dans le conteneur : root ; `.env` et dump présents | Dockerfile |
+| SF-206 | oui | base restaurée en version 9 puis `docker compose up` : relation "partners" does not exist | docker-compose.yml |
