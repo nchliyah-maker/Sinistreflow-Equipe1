@@ -4,8 +4,19 @@ const { pool } = require('./pool');
 
 const MIGRATIONS_DIR = path.join(__dirname, '..', '..', 'migrations');
 
-async function migrate() {
-  await pool.query(`
+const migrationVersion = (file) => parseInt(file.split('_')[0], 10);
+
+/** Liste les fichiers de migration dans l'ordre où ils doivent être joués. */
+function listMigrations(dir = MIGRATIONS_DIR) {
+  return fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith('.sql'))
+    // tri numérique : en ordre alphabétique, "10_..." passerait avant "2_..."
+    .sort((a, b) => migrationVersion(a) - migrationVersion(b));
+}
+
+async function migrate(db = pool) {
+  await db.query(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
       version    INTEGER PRIMARY KEY,
       name       TEXT NOT NULL,
@@ -13,22 +24,17 @@ async function migrate() {
     )
   `);
 
-  const { rows } = await pool.query('SELECT version FROM schema_migrations');
+  const { rows } = await db.query('SELECT version FROM schema_migrations');
   const applied = new Set(rows.map((r) => r.version));
 
-  const files = fs
-    .readdirSync(MIGRATIONS_DIR)
-    .filter((f) => f.endsWith('.sql'))
-    .sort();
-
-  for (const file of files) {
-    const version = parseInt(file.split('_')[0], 10);
+  for (const file of listMigrations()) {
+    const version = migrationVersion(file);
     if (applied.has(version)) continue;
 
     const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
     console.log(`→ migration ${file}`);
 
-    const client = await pool.connect();
+    const client = await db.connect();
     try {
       await client.query('BEGIN');
       await client.query(sql);
@@ -55,4 +61,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { migrate };
+module.exports = { migrate, listMigrations };
