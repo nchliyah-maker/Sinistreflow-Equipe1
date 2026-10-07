@@ -22,6 +22,9 @@ services:
   # Joue les migrations en attente puis s'arrête (code 0 si tout va bien).
   # L'application ne démarre qu'après : plus besoin de "penser à" lancer npm run migrate.
   migrate:
+    # En local l'image est construite (build). Sur la VM, deploy/deploy.sh fixe SINISTREFLOW_IMAGE
+    # sur l'image publiée par la CI (ghcr.io/...:<sha du commit>).
+    image: ${SINISTREFLOW_IMAGE:-sinistreflow:local}
     build: .
     command: ["node", "src/db/migrate.js"]
     env_file: .env
@@ -34,6 +37,7 @@ services:
     restart: "no"
 
   app:
+    image: ${SINISTREFLOW_IMAGE:-sinistreflow:local}
     build: .
     ports:
       - "127.0.0.1:3000:3000"

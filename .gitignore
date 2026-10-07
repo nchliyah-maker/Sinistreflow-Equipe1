@@ -14,3 +14,6 @@ playwright-report/
 
 # URL du webhook Discord d'Alertmanager (secret)
 monitoring/alertmanager/secrets/
+
+# état du déploiement sur la VM (image en service, historique)
+.deploy/
