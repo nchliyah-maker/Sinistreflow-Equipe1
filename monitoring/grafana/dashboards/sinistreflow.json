@@ -332,7 +332,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "100 * sum(rate(sinistreflow_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(sinistreflow_http_requests_total[5m])), 0.001)",
+          "expr": "(100 * sum(rate(sinistreflow_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(sinistreflow_http_requests_total[5m])), 0.001)) or vector(0)",
           "legendFormat": "",
           "instant": true,
           "range": false
@@ -530,7 +530,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "100 * sum(rate(sinistreflow_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(sinistreflow_http_requests_total[5m])), 0.001)",
+          "expr": "(100 * sum(rate(sinistreflow_http_requests_total{status=~\"5..\"}[5m])) / clamp_min(sum(rate(sinistreflow_http_requests_total[5m])), 0.001)) or vector(0)",
           "legendFormat": "% de 5xx",
           "instant": false,
           "range": true
