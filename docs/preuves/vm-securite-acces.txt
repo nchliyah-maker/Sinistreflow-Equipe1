@@ -1,0 +1,63 @@
+Sécurité de la VM : accès SSH, pare-feu, ports
+Relevé le 07/10/2026.
+
+### sudo ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), deny (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                   # SSH
+80/tcp                     ALLOW IN    Anywhere                   # HTTP
+443/tcp                    ALLOW IN    Anywhere                   # HTTPS
+22/tcp (v6)                ALLOW IN    Anywhere (v6)              # SSH
+80/tcp (v6)                ALLOW IN    Anywhere (v6)              # HTTP
+443/tcp (v6)               ALLOW IN    Anywhere (v6)              # HTTPS
+
+
+### réglages SSH effectifs (sudo sshd -T)
+permitrootlogin no
+pubkeyauthentication yes
+passwordauthentication no
+kbdinteractiveauthentication no
+fail2ban : active
+
+### tentatives de connexion depuis le poste
+ssh deploy@192.168.56.10 (clé)          : connecté en tant que deploy
+ssh root@192.168.56.10 (clé)            : root@192.168.56.10: Permission denied (publickey).
+ssh deploy@192.168.56.10 (mot de passe) : deploy@192.168.56.10: Permission denied (publickey).
+
+### ports joignables depuis le poste (192.168.56.10)
+port 22 : ouvert
+port 80 : ouvert
+port 443 : fermé
+port 3000 : fermé
+port 3001 : fermé
+port 5432 : fermé
+port 9090 : fermé
+port 9093 : fermé
+port 9100 : fermé
+(443 est autorisé par le pare-feu mais rien n'y écoute : pas de certificat sans nom de domaine)
+
+### réponses par nginx, depuis le poste
+/                  HTTP 200
+/health            HTTP 200
+/backoffice.html   HTTP 200
+/metrics           HTTP 403
+/grafana/login     HTTP 200
+
+### conteneurs et ports publiés sur la VM
+alertmanager | Up 26 minutes | 127.0.0.1:9093->9093/tcp
+app | Up 5 minutes (healthy) | 127.0.0.1:3000->3000/tcp
+blackbox | Up 26 minutes | 9115/tcp
+db | Up 2 minutes (healthy) | 127.0.0.1:5432->5432/tcp
+grafana | Up 26 minutes | 127.0.0.1:3001->3000/tcp
+migrate | Exited (0) 5 minutes ago | 
+node-exporter | Up 26 minutes | 9100/tcp
+postgres-exporter | Up 26 minutes | 9187/tcp
+prometheus | Up 26 minutes | 127.0.0.1:9090->9090/tcp
+
+### fichier .env
+-rw------- deploy:deploy /opt/sinistreflow/.env

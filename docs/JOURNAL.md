@@ -172,3 +172,134 @@ Le dossier SIN-2026-000450 a été remis dans son état d'origine après la vér
 - À faire quand les tickets bloquants seront passés : dans errorHandler.js,
   remplacer le message par un texte générique quand le code est 500, avec un test
   qui vérifie que le message technique ne sort plus.
+
+## Jour 3 - mercredi 07/10/2026
+
+### Ce que je voulais faire aujourd'hui
+
+- Finir le lot C (conteneurs) et les trois commits de tests
+- Avoir le pipeline GitHub Actions vert sur main, avec le connecteur ExpertAuto
+- Mettre en place la supervision et les scripts de déploiement
+- Déployer sur une VM et faire le test de panne
+
+### Ce qui a été fait
+
+Lot C (commencé la veille au soir), chaque ticket avec son test :
+
+- SF-201 : l'application n'écoutait que sur localhost, donc invisible depuis l'extérieur
+  du conteneur. Elle écoute sur 0.0.0.0.
+- SF-203 : migrations triées par ordre alphabétique, 10 passait avant 2. Tri par numéro.
+  Le test applique les 10 migrations sur une base vide créée pour l'occasion.
+- SF-202 : DB_HOST=db, healthcheck pg_isready, ports liés à 127.0.0.1.
+- SF-206 : service migrate qui joue les migrations avant le démarrage de l'application.
+- SF-205 : image passée de 1,74 Go à 248 Mo, utilisateur node, .dockerignore.
+- SF-204 : .env retiré du dépôt, .env.example, plus aucun mot de passe par défaut dans le
+  code. Les anciens secrets restent dans l'historique Git (pas de push forcé sur main) :
+  ils sont considérés comme compromis, la VM utilise des secrets neufs.
+
+Tests (SF-401, 402, 403) : 174 tests unitaires avec 100 % de couverture des lignes du
+domaine, 160 tests d'intégration sur le dump restauré, 13 scénarios Playwright.
+
+CI (SF-404, 405) : pipeline commits, unit, integration, e2e, partner, puis docker sur main.
+Le job partner lance le connecteur ExpertAuto non modifié contre l'image construite :
+25/25 dans GitHub Actions. L'image est publiée sur GHCR avec le SHA du commit.
+
+Supervision (SF-501 à 504) : /metrics, journaux JSON, Prometheus, Grafana provisionné par
+fichiers, 7 règles d'alerte, Alertmanager.
+
+Déploiement (SF-601, 602, 604) : scripts de provisionnement et de déploiement avec retour
+arrière, nginx, sauvegarde quotidienne, runbook.
+
+VM : Ubuntu 24.04 LTS créée avec Vagrant dans VirtualBox (2 vCPU, 4 Go), décrite dans
+deploy/vm/Vagrantfile. Provisionnement, déploiement et connecteur lancés sur la VM :
+SYNCHRONISATION CONFORME, 25/25 contrôles OK. Preuves dans docs/preuves/.
+
+La note "À revoir plus tard" du jour 2 est traitée : une erreur 500 répond maintenant
+"Erreur interne du serveur", le détail va dans les journaux (SF-504).
+
+### Ce qui m'a bloquée
+
+- Le pipeline a échoué à sa première exécution. Un test Playwright cliquait sur la liste
+  du back-office avant qu'elle soit rafraîchie : ça passait sur mon PC et pas sur la
+  machine de GitHub, plus rapide. Le test attend maintenant la réponse du serveur.
+- Un test qui interroge Docker était rangé dans les tests unitaires, qui tournent sans
+  fichier .env dans la CI. Déplacé dans les tests d'intégration.
+- Lancés en parallèle, les tests d'intégration se gênaient sur la base partagée (deux
+  fichiers créaient des dossiers en même temps). Ils tournent en série.
+- Mon fichier .env local a disparu après un git pull, puisque le commit SF-204 le supprime
+  du dépôt. Il faut le recréer à partir de .env.example.
+- Sur la VM, la connexion SSH par mot de passe restait active après le provisionnement :
+  le fichier 50-cloud-init.conf d'Ubuntu la réactive et passait avant le mien (sshd garde
+  la première valeur lue). Mon fichier s'appelle maintenant 00-sinistreflow.conf et le
+  script vérifie le résultat avec sshd -T.
+- L'image GHCR est privée : sans jeton sur la VM, docker pull est refusé. L'image a été
+  construite sur la VM à partir du même commit, puis déployée par deploy.sh. Pour un vrai
+  pull il faut un docker login ghcr.io avec un jeton en lecture.
+- Pas assez de mémoire pour faire tourner Docker Desktop et la VM en même temps : il faut
+  arrêter Docker sur le PC pendant qu'on travaille sur la VM.
+- Le webhook Discord n'est pas encore créé : les alertes arrivent bien dans Alertmanager,
+  mais la notification n'a pas pu être vérifiée.
+
+### Test de panne (game day) sur la VM
+
+Détails, chronologies complètes et captures dans docs/preuves/ (fichiers gameday-*).
+Les heures sont celles de la VM (UTC).
+
+#### Scénario 1 : panne de la base (docker compose stop db)
+
+| Moment | Événement |
+|---|---|
+| 10:35:51 | arrêt de PostgreSQL |
+| + 7 s | /health répond 503 |
+| + 22 s | alertes BaseDeDonneesInjoignable et SanteEnEchec en attente (pending) |
+| + 80 s | alertes déclenchées (firing) et reçues par Alertmanager |
+| 10:38:33 | redémarrage de PostgreSQL |
+| + 5 s | /health répond 200, sans redémarrer l'application |
+| + 21 s | alertes résolues |
+
+- Temps de détection : 80 secondes. Temps de retour à la normale : 5 secondes.
+- Sur Grafana pendant la panne : base et sonde "EN PANNE", 52 % d'erreurs 5xx, latence
+  p95 à 2,4 s.
+- SanteEnEchec est masquée par BaseDeDonneesInjoignable dans Alertmanager : une seule
+  notification au lieu de deux pour la même cause.
+- Ce que le test a révélé, et qui est corrigé :
+  1. en répétition sur mon PC, l'application s'arrêtait avec la base (événement "error"
+     du pool de connexions non géré). Elle reste debout et se reconnecte seule ;
+  2. sur la VM, /health ne répondait pas pendant la panne, la connexion à la base restait
+     en attente. /health est limité à 2 secondes et répond 503.
+- À améliorer : la durée "for" d'une minute pourrait descendre à 30 secondes pour les
+  alertes critiques ; brancher la notification Discord.
+
+#### Scénario 2 : pluie d'erreurs (200 appels avec une mauvaise clé API)
+
+- 200 appels en 17 secondes depuis le PC, à travers nginx : 200 réponses 401.
+- Le compteur sinistreflow_http_requests_total{status="401"} passe de 0 à 200. Le panneau
+  "Requêtes par seconde, par code HTTP" montre la courbe des 401, et chaque refus est
+  dans les journaux ("requête refusée", sans la clé envoyée).
+- Aucune alerte ne se déclenche : les règles surveillent les erreurs 5xx, et un 401 est
+  une erreur du client. Le taux de 5xx reste à 0 %.
+- À améliorer : ajouter une alerte sur le taux de 401 (clé partenaire périmée ou tentative
+  d'intrusion) et limiter le débit par adresse dans nginx.
+
+#### Scénario 3 : mauvaise livraison
+
+- Déploiement volontaire d'une image dont la commande de démarrage échoue.
+- deploy.sh détecte l'application "unhealthy" au bout de 23 secondes, revient seul à
+  l'image précédente et sort en erreur. Durée totale : 42 secondes. /health répond 200.
+- L'échec et le retour arrière sont tracés dans .deploy/historique.log.
+- Les migrations ne sont pas annulées par le retour arrière : elles doivent rester
+  compatibles avec la version précédente du code (voir le runbook).
+- À améliorer : rejouer le scénario avec une vraie image tirée de GHCR.
+
+### Où on en est sur les métriques DORA
+
+| Métrique | Au départ | Mesuré |
+|---|---|---|
+| Fréquence de déploiement | "quand Thomas avait le temps" | une image publiée à chaque fusion sur main ; déploiement sur la VM par deploy.sh |
+| Délai de mise en production | des semaines | pipeline de 3 minutes environ, puis 25 secondes de déploiement |
+| Taux d'échec des changements | inconnu | mesuré dans .deploy/historique.log : 1 échec (volontaire) sur 3 livraisons |
+| Temps de restauration | inconnu | 80 secondes pour être prévenue, 42 secondes pour un retour arrière |
+
+### Indices ouverts
+
+- Aucun indice du sujet ouvert.

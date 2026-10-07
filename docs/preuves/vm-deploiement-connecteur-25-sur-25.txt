@@ -1,0 +1,43 @@
+Déploiement sur la VM (Ubuntu 24.04 LTS, VirtualBox, 2 vCPU, 4 Go) et recette du connecteur ExpertAuto
+Commande, lancée sur la VM par l'utilisateur deploy : bash deploy/deploy.sh <image>
+Les heures affichées sont celles de la VM (UTC).
+
+2026-10-07 10:18:27  Déploiement de ghcr.io/nchliyah-maker/sinistreflow-equipe1:9645f5ea7f44658b5fd0966b53dd065da10220b6 (version en service : aucune)
+2026-10-07 10:18:27  2/4 Migrations puis démarrage de l'application
+2026-10-07 10:20:46  3/4 Attente de http://127.0.0.1:3000/health
+2026-10-07 10:20:46  4/4 Recette du connecteur ExpertAuto
+ExpertAuto - connecteur SinistreFlow v2.6.1
+Cible : http://127.0.0.1:3000  |  07/10/2026 10:20:46
+[1/5] Disponibilité de SinistreFlow
+   OK   GET /health répond 200
+   OK   statut applicatif UP
+[2/5] Dossiers en attente d'expertise (API v1)
+   OK   GET /api/v1/claims répond 200
+   OK   au moins un dossier en attente d'expertise
+   OK   champs v1 présents (reference, numero_contrat, date_sinistre, statut, immatriculation)
+   OK   statut des dossiers = EXPERTISE_EN_COURS
+   OK   immatriculation renseignée sur les dossiers auto
+   -> dossier traité : SIN-2026-000450
+[3/5] Détail du dossier SIN-2026-000450 (API v2)
+   OK   GET /api/v2/claims/{ref} répond 200
+   OK   vehiclePlate au format AA-123-AA
+   OK   estimatedAmountCents est un entier
+   OK   incidentDate au format AAAA-MM-JJ
+   OK   incidentDate v2 = date_sinistre v1
+[4/5] Dépôt du rapport d'expertise (API v2)
+   OK   POST /api/v2/claims/{ref}/expertise répond 201
+   OK   statut v2 = EXPERTISE_TERMINEE
+   OK   indemnityCents est un entier
+[5/5] Contrôle du dossier mis à jour (API v3 + v1)
+   OK   GET /api/v3/claims/{ref} répond 200
+   OK   statut v3 = ASSESSMENT_DONE
+   OK   montant expertisé enregistré
+   OK   indemnité = expertise - franchise (plancher 0)
+   OK   date de rendez-vous enregistrée telle qu'envoyée
+   OK   immatriculation identique en v2 et v3
+   OK   date du sinistre identique en v2 et v3
+   OK   GET /api/v1/claims/{ref} répond 200
+   OK   statut v1 = EXPERTISE_TERMINEE
+   OK   immatriculation v1 = v2
+SYNCHRONISATION CONFORME : 25/25 contrôles OK
+2026-10-07 10:20:47  Déploiement réussi : ghcr.io/nchliyah-maker/sinistreflow-equipe1:9645f5ea7f44658b5fd0966b53dd065da10220b6 est en service.
