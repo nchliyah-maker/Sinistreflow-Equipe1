@@ -9,14 +9,19 @@ const v2Routes = require('./api/v2/claims');
 const v3Routes = require('./api/v3/claims');
 const apiKeyAuth = require('./api/middlewares/apiKey');
 const errorHandler = require('./api/middlewares/errorHandler');
+const metrics = require('./metrics');
 const { NotFoundError } = require('./domain/errors');
 
 const app = express();
 
+app.use(metrics.middleware);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(healthRoutes);
+// Lu par Prometheus. À ne pas exposer sur Internet : bloqué par nginx (voir deploy/)
+app.get('/metrics', metrics.handler);
+app.use(['/api/public', '/api/internal', '/api/v1', '/api/v2', '/api/v3'], metrics.rememberMount);
 app.use('/api/public', publicRoutes);
 app.use('/api/internal', internalRoutes);
 
