@@ -1,0 +1,9 @@
+modules:
+  # La sonde réussit seulement si /health répond 200 (503 quand la base est en panne)
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      valid_status_codes: [200]
+      preferred_ip_protocol: ip4
