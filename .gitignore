@@ -20,3 +20,6 @@ monitoring/alertmanager/secrets/
 
 # réglages locaux des outils de développement
 .claude/
+
+# état local de Vagrant
+.vagrant/
