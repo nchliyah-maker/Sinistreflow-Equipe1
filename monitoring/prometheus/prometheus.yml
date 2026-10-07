@@ -1,0 +1,39 @@
+# Prometheus vient chercher les métriques lui-même (modèle "pull"), toutes les 15 secondes.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # l'application : RED par route, pool PostgreSQL, métriques métier, Node.js
+  - job_name: sinistreflow
+    static_configs:
+      - targets: ["app:3000"]
+
+  # la machine : CPU, mémoire, disque
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  # PostgreSQL : pg_up, connexions, taille
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  # sonde HTTP : blackbox appelle /health et expose probe_success
+  - job_name: blackbox
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://app:3000/health"]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

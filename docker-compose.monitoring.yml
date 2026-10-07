@@ -1,0 +1,77 @@
+# Stack de supervision de SinistreFlow.
+# S'ajoute à la stack applicative (même réseau Docker) :
+#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+#
+# Rien n'est exposé sur Internet : les seuls ports publiés sont liés à 127.0.0.1.
+# Grafana se consulte derrière nginx (/grafana/), Prometheus par tunnel SSH.
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - app
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD manquant - voir .env.example}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      # servi par nginx sous /grafana/
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      # source de données et tableaux de bord provisionnés par fichiers ("as code")
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # CPU, mémoire, disque de la machine hôte (méthode USE)
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro
+    restart: unless-stopped
+
+  # pg_up, connexions, taille de la base
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    environment:
+      DATA_SOURCE_URI: db:5432/sinistreflow?sslmode=disable
+      DATA_SOURCE_USER: sinistreflow
+      DATA_SOURCE_PASS: ${DB_PASSWORD:?DB_PASSWORD manquant - copier .env.example vers .env}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # sonde HTTP sur /health : ce que voit un client de l'extérieur de l'application
+  blackbox:
+    image: prom/blackbox-exporter:v0.25.0
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - ./monitoring/blackbox:/etc/blackbox:ro
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:
