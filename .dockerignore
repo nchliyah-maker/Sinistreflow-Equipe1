@@ -31,3 +31,7 @@ docs
 Dockerfile
 .dockerignore
 docker-compose*.yml
+
+# déploiement et supervision : hors de l image
+deploy
+monitoring
