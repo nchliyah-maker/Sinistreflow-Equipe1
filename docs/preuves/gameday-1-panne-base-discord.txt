@@ -1,0 +1,83 @@
+Test de panne n°1, rejoué avec la notification Discord branchée (webhook lu dans monitoring/alertmanager/secrets/discord_webhook_url).
+Arrêt de PostgreSQL sur la VM (docker compose stop db) pendant 3 min 37 s.
+Une ligne toutes les 5 à 8 secondes : temps écoulé, code de /health, alertes actives dans Alertmanager, état des règles dans Prometheus.
+Les compteurs alertmanager_notifications_* viennent de http://127.0.0.1:9093/metrics. Heures de la VM (UTC).
+
+AVANT
+alertmanager_notifications_failed_total{integration="discord",reason="clientError"} 0
+alertmanager_notifications_failed_total{integration="discord",reason="serverError"} 0
+alertmanager_notifications_total{integration="discord"} 0
+=== 2026-10-07 13:37:38  état initial
++  0s  /health=200  alertmanager=0 active(s)  aucune alerte
+=== 2026-10-07 13:37:38  PANNE : docker compose stop db
++  7s  /health=503  alertmanager=0 active(s)  aucune alerte
++ 14s  /health=503  alertmanager=0 active(s)  aucune alerte
++ 21s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 28s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 35s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, SanteEnEchec:pending
++ 43s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 50s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 57s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 64s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 71s  /health=503  alertmanager=0 active(s)  BaseDeDonneesInjoignable:pending, LatenceP95Elevee:pending, SanteEnEchec:pending, TauxErreurs5xxEleve:pending
++ 78s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 85s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 93s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++100s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++107s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++114s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++121s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++129s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++136s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++143s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++150s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++157s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++165s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++172s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++179s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++186s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++193s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++200s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++208s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++215s  /health=503  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
+=== 2026-10-07 13:41:15  REPRISE : docker compose start db
++  5s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 10s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 15s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 20s  /health=200  alertmanager=1 active(s)  BaseDeDonneesInjoignable:firing, LatenceP95Elevee:pending, SanteEnEchec:firing, TauxErreurs5xxEleve:pending
++ 26s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 31s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 36s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 41s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 46s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 51s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 57s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 62s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 67s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 72s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 78s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 83s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 88s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 93s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++ 98s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++103s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++108s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++113s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++119s  /health=200  alertmanager=0 active(s)  LatenceP95Elevee:pending, TauxErreurs5xxEleve:pending
++124s  /health=200  alertmanager=2 active(s)  LatenceP95Elevee:firing, TauxErreurs5xxEleve:firing
+=== 2026-10-07 13:43:20  fin
+app | Up 6 minutes (healthy)
+db | Up 2 minutes (healthy)
+APRES
+alertmanager_notifications_failed_total{integration="discord",reason="clientError"} 0
+alertmanager_notifications_failed_total{integration="discord",reason="serverError"} 0
+alertmanager_notifications_total{integration="discord"} 2
+
+########## Suite, après la fin du relevé
+13:43:16 environ  LatenceP95Elevee et TauxErreurs5xxEleve passent "firing" (en attente depuis 13:38:16, durée "for" de 5 minutes)
+13:43:40  alertmanager_notifications_total{integration="discord"} 4
+13:46:26  plus aucune alerte dans Prometheus
+13:47:41  0 alerte dans Alertmanager
+13:47:41  alertmanager_notifications_total{integration="discord"} 6
+13:47:41  alertmanager_notifications_failed_total{integration="discord"} : 0 pour toutes les raisons
+13:47:41  aucune ligne WARN ou ERROR dans les journaux d'Alertmanager

@@ -5,8 +5,8 @@ et quoi faire quand une alerte sonne.
 
 > État de validation : cette procédure a été exécutée le 07/10/2026 sur une VM Ubuntu 24.04 LTS
 > (VirtualBox, `deploy/vm/Vagrantfile`) : provisionnement, déploiement, connecteur à 25/25, test de panne
-> et retour arrière. Les sorties sont dans `docs/preuves/`. Reste à valider : le `docker pull` depuis GHCR
-> avec un jeton, et la notification Discord.
+> retour arrière et notification Discord. Les sorties sont dans `docs/preuves/`. Reste à valider : le
+> `docker pull` depuis GHCR avec un jeton.
 
 ## 1. Vue d'ensemble
 

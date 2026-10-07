@@ -237,8 +237,12 @@ La note "À revoir plus tard" du jour 2 est traitée : une erreur 500 répond ma
   pull il faut un docker login ghcr.io avec un jeton en lecture.
 - Pas assez de mémoire pour faire tourner Docker Desktop et la VM en même temps : il faut
   arrêter Docker sur le PC pendant qu'on travaille sur la VM.
-- Le webhook Discord n'est pas encore créé : les alertes arrivent bien dans Alertmanager,
-  mais la notification n'a pas pu être vérifiée.
+- Le webhook Discord n'existait pas pendant le premier test de panne : les alertes
+  s'arrêtaient à Alertmanager. Je l'ai créé ensuite et j'ai rejoué le scénario 1 (voir
+  plus bas).
+- Le fichier du webhook, créé avec nano sous le compte deploy, n'était lisible que par
+  deploy : Alertmanager, qui tourne sous un autre compte dans son conteneur, n'aurait pas
+  pu le lire. Il faut un chmod 644, comme l'indique le runbook.
 
 ### Test de panne (game day) sur la VM
 
@@ -268,7 +272,29 @@ Les heures sont celles de la VM (UTC).
   2. sur la VM, /health ne répondait pas pendant la panne, la connexion à la base restait
      en attente. /health est limité à 2 secondes et répond 503.
 - À améliorer : la durée "for" d'une minute pourrait descendre à 30 secondes pour les
-  alertes critiques ; brancher la notification Discord.
+  alertes critiques.
+
+Scénario rejoué à 13:37 avec la notification Discord branchée (panne de 3 min 37 s) :
+
+| Moment | Événement |
+|---|---|
+| 13:37:38 | arrêt de PostgreSQL |
+| + 7 s | /health répond 503 |
+| + 78 s | BaseDeDonneesInjoignable déclenchée, notification envoyée à Discord |
+| 13:41:15 | redémarrage de PostgreSQL |
+| + 5 s | /health répond 200 |
+| + 26 s | alertes résolues, notification de résolution |
+| 13:43:16 | TauxErreurs5xxEleve et LatenceP95Elevee se déclenchent, deux minutes après la reprise |
+| 13:46:26 | plus aucune alerte |
+
+- Alertmanager a envoyé 6 notifications à Discord, aucune en échec (compteurs
+  alertmanager_notifications_total et alertmanager_notifications_failed_total).
+- Ce que ce deuxième passage a révélé : les deux alertes de qualité de service arrivent
+  en retard. Elles calculent sur 5 minutes et attendent 5 minutes : avec une panne de plus
+  de 3 minutes, elles préviennent alors que tout est déjà reparti. Au premier passage, la
+  panne était plus courte et elles ne s'étaient pas déclenchées.
+- Non corrigé, à améliorer : raccourcir leur fenêtre et leur durée "for", et les masquer
+  quand BaseDeDonneesInjoignable est active ou vient d'être résolue.
 
 #### Scénario 2 : pluie d'erreurs (200 appels avec une mauvaise clé API)
 
