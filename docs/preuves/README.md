@@ -23,6 +23,7 @@ Les post-mortems sont dans [../JOURNAL.md](../JOURNAL.md), jour 3.
 | [gameday-1-panne-base-prometheus-alertes.png](gameday-1-panne-base-prometheus-alertes.png) | règles d'alerte déclenchées dans Prometheus |
 | [gameday-1-panne-base-alertmanager.png](gameday-1-panne-base-alertmanager.png) | alertes reçues par Alertmanager |
 | [gameday-1-panne-base-discord.txt](gameday-1-panne-base-discord.txt) | même panne rejouée avec le webhook Discord : 6 notifications envoyées, 0 échec |
+| [gameday-1-panne-base-discord.png](gameday-1-panne-base-discord.png) | les 6 messages reçus dans le salon Discord `#alertes` (heure de Paris) |
 | [gameday-2-pluie-erreurs.txt](gameday-2-pluie-erreurs.txt) | 200 appels avec une mauvaise clé API |
 | [gameday-2-pluie-erreurs-grafana.png](gameday-2-pluie-erreurs-grafana.png) | tableau de bord après la pluie d'erreurs |
 | [gameday-3-mauvaise-livraison.txt](gameday-3-mauvaise-livraison.txt) | image cassée : retour arrière automatique en 42 secondes |
