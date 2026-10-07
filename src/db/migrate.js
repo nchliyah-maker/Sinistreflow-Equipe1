@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { pool } = require('./pool');
+const logger = require('../logger');
 
 const MIGRATIONS_DIR = path.join(__dirname, '..', '..', 'migrations');
 
@@ -32,7 +33,7 @@ async function migrate(db = pool) {
     if (applied.has(version)) continue;
 
     const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
-    console.log(`→ migration ${file}`);
+    logger.info('application de la migration', { file, version });
 
     const client = await db.connect();
     try {
@@ -52,11 +53,11 @@ async function migrate(db = pool) {
 if (require.main === module) {
   migrate()
     .then(() => {
-      console.log('Migrations OK');
+      logger.info('migrations terminées');
       return pool.end();
     })
     .catch((err) => {
-      console.error('Migration échouée :', err.message);
+      logger.error('migration échouée', { err });
       process.exit(1);
     });
 }

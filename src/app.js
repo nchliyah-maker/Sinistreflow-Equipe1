@@ -10,11 +10,13 @@ const v3Routes = require('./api/v3/claims');
 const apiKeyAuth = require('./api/middlewares/apiKey');
 const errorHandler = require('./api/middlewares/errorHandler');
 const metrics = require('./metrics');
+const logger = require('./logger');
 const { NotFoundError } = require('./domain/errors');
 
 const app = express();
 
 app.use(metrics.middleware);
+app.use(logger.requestLogger(metrics.routeLabel));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
