@@ -38,7 +38,10 @@ fi
   || fail "aucune clé SSH pour ${DEPLOY_USER} : ajoutez votre clé publique dans /home/${DEPLOY_USER}/.ssh/authorized_keys puis relancez"
 
 log "3/6 Durcissement de SSH"
-cat > /etc/ssh/sshd_config.d/99-sinistreflow.conf <<'EOF'
+# sshd garde la PREMIERE valeur lue : le fichier doit passer avant ceux du systeme
+# (50-cloud-init.conf remet PasswordAuthentication yes sur les images Ubuntu)
+rm -f /etc/ssh/sshd_config.d/99-sinistreflow.conf
+cat > /etc/ssh/sshd_config.d/00-sinistreflow.conf <<'EOF'
 # Géré par deploy/provision-vm.sh
 PermitRootLogin no
 PasswordAuthentication no
@@ -46,6 +49,9 @@ KbdInteractiveAuthentication no
 PubkeyAuthentication yes
 EOF
 sshd -t || fail "configuration SSH invalide, rien n'a été rechargé"
+effective="$(sshd -T)"
+grep -qx 'passwordauthentication no' <<<"$effective" || fail "la connexion par mot de passe est encore active"
+grep -qx 'permitrootlogin no' <<<"$effective" || fail "la connexion root est encore active"
 systemctl reload ssh
 
 systemctl enable --now fail2ban
