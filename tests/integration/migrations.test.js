@@ -5,6 +5,9 @@ const { migrate, listMigrations } = require('../../src/db/migrate');
 
 const EMPTY_DATABASE = 'sinistreflow_migrations_test';
 
+// Créer une base puis jouer 10 migrations peut dépasser les 5 s par défaut sur une machine chargée
+jest.setTimeout(30000);
+
 describe('SF-203 : migrations sur une base neuve', () => {
   let emptyDb;
 

@@ -10,7 +10,7 @@ module.exports = defineConfig({
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: `http://127.0.0.1:${PORT}`,
     locale: 'fr-FR',
     timezoneId: 'Europe/Paris',
     trace: 'retain-on-failure',
@@ -19,7 +19,7 @@ module.exports = defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'node src/index.js',
-    url: `http://localhost:${PORT}/health`,
+    url: `http://127.0.0.1:${PORT}/health`,
     env: { PORT, TZ: 'Europe/Paris' },
     reuseExistingServer: false,
     timeout: 30000,
