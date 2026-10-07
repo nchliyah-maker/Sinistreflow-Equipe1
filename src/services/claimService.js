@@ -5,6 +5,7 @@ const { assertTransition } = require('../domain/workflow');
 const { computeIndemnityCents } = require('../domain/indemnity');
 const { parseIsoDate, isFutureDate } = require('../domain/dates');
 const { ValidationError, NotFoundError } = require('../domain/errors');
+const metrics = require('../metrics');
 
 async function verifyContract(contractNumber, email) {
   const contract = await contractRepository.findByNumberAndEmail(contractNumber, email);
@@ -22,6 +23,7 @@ async function declare(payload) {
   const contract = await verifyContract(payload.contractNumber, payload.email);
   const claim = validateDeclaration(payload, contract);
   const reference = await claimRepository.create(claim);
+  metrics.claimsDeclared.inc({ type: claim.type });
   return claimRepository.findByReference(reference);
 }
 
@@ -61,6 +63,7 @@ async function recordExpertise(reference, expertise, changedBy) {
 
   const indemnityCents = computeIndemnityCents(expertise.assessedAmountCents, claim.franchise_eur);
   await claimRepository.saveExpertise(claim, expertise, indemnityCents, changedBy);
+  metrics.expertisesSubmitted.inc({ partner: changedBy.replace(/^partenaire:/, '') });
   return getClaim(reference);
 }
 
