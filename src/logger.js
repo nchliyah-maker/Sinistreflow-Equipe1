@@ -1,10 +1,4 @@
-/**
- * Journaux structurés : une ligne JSON par événement, sur la sortie standard.
- * C'est Docker (puis l'outil de collecte) qui se charge de les stocker.
- *
- * Niveau réglable par LOG_LEVEL : debug, info (défaut), warn, error, silent.
- * Pendant les tests (NODE_ENV=test) les journaux sont coupés, sauf si LOG_LEVEL est défini.
- */
+// Journaux JSON, une ligne par événement. Niveau : LOG_LEVEL (coupés pendant les tests).
 const LEVELS = {
   debug: 10, info: 20, warn: 30, error: 40, silent: 100,
 };

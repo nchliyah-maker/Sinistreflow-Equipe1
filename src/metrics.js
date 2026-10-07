@@ -1,11 +1,3 @@
-/**
- * Métriques Prometheus de SinistreFlow, exposées sur GET /metrics.
- *
- * - RED par route : compteur de requêtes et histogramme de durées (méthode, route, statut)
- * - saturation : état du pool de connexions PostgreSQL
- * - métier : déclarations par type, expertises déposées, appels par version d'API et partenaire
- * - métriques par défaut de Node.js (CPU, mémoire, boucle d'événements)
- */
 const client = require('prom-client');
 const db = require('./db/pool');
 
@@ -60,13 +52,9 @@ const apiRequests = new client.Counter({
   registers: [register],
 });
 
-/**
- * Étiquette "route" : le MOTIF de la route (/api/v2/claims/:reference), jamais l'URL réelle.
- * Une étiquette par dossier créerait une série par dossier et ferait exploser Prometheus.
- */
+// motif de la route, jamais l'URL réelle : sinon une série Prometheus par dossier
 function routeLabel(req) {
-  // req.baseUrl est remis à zéro par Express quand une erreur remonte : on garde le préfixe
-  // mémorisé par rememberMount au moment où la requête est entrée dans le routeur.
+  // Express vide req.baseUrl quand une erreur remonte : on garde le préfixe mémorisé
   const mount = req.metricsMount || req.baseUrl;
   if (req.route) return `${mount}${req.route.path}`;
   if (mount) return `${mount}/*`; // arrêtée avant la route (authentification refusée, 404)

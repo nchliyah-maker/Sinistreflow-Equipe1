@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use(healthRoutes);
-// Lu par Prometheus. À ne pas exposer sur Internet : bloqué par nginx (voir deploy/)
+// lu par Prometheus, bloqué par nginx côté Internet
 app.get('/metrics', metrics.handler);
 app.use(['/api/public', '/api/internal', '/api/v1', '/api/v2', '/api/v3'], metrics.rememberMount);
 app.use('/api/public', publicRoutes);

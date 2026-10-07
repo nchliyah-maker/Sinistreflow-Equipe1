@@ -1,7 +1,6 @@
 const db = require('../db/pool');
 
-// La plaque vient de vehicles.plate_number, seule source de vérité depuis la migration 8
-// (voir docs/adr/0001-versioning-api.md). claims.immatriculation n'est plus lue.
+// plaque lue dans vehicles (voir docs/adr/0001-versioning-api.md)
 const BASE_SELECT = `
   SELECT c.*, ct.contract_number, ct.product, ct.franchise_eur, v.plate_number
   FROM claims c

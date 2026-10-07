@@ -1,35 +1,28 @@
-# Prometheus vient chercher les métriques lui-même (modèle "pull"), toutes les 15 secondes.
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-# règles d'alerte, évaluées toutes les 15 s
 rule_files:
   - alerts.yml
 
-# les alertes actives sont envoyées à Alertmanager, qui prévient l'équipe
 alerting:
   alertmanagers:
     - static_configs:
         - targets: ["alertmanager:9093"]
 
 scrape_configs:
-  # l'application : RED par route, pool PostgreSQL, métriques métier, Node.js
   - job_name: sinistreflow
     static_configs:
       - targets: ["app:3000"]
 
-  # la machine : CPU, mémoire, disque
   - job_name: node
     static_configs:
       - targets: ["node-exporter:9100"]
 
-  # PostgreSQL : pg_up, connexions, taille
   - job_name: postgres
     static_configs:
       - targets: ["postgres-exporter:9187"]
 
-  # sonde HTTP : blackbox appelle /health et expose probe_success
   - job_name: blackbox
     metrics_path: /probe
     params:

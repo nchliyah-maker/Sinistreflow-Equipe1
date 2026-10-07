@@ -1,9 +1,4 @@
-# Stack de supervision de SinistreFlow.
-# S'ajoute à la stack applicative (même réseau Docker) :
-#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
-#
-# Rien n'est exposé sur Internet : les seuls ports publiés sont liés à 127.0.0.1.
-# Grafana se consulte derrière nginx (/grafana/), Prometheus par tunnel SSH.
+# Supervision. Usage : docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
 services:
   prometheus:
     image: prom/prometheus:v2.55.1
@@ -27,11 +22,9 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD manquant - voir .env.example}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_AUTH_ANONYMOUS_ENABLED: "false"
-      # servi par nginx sous /grafana/
       GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
-      # source de données et tableaux de bord provisionnés par fichiers ("as code")
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana-data:/var/lib/grafana
@@ -41,7 +34,6 @@ services:
       - prometheus
     restart: unless-stopped
 
-  # regroupe les alertes et les envoie sur Discord
   alertmanager:
     image: prom/alertmanager:v0.28.1
     command:
@@ -49,14 +41,13 @@ services:
       - --storage.path=/alertmanager
     volumes:
       - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-      # contient discord_webhook_url, jamais commité
+      # contient discord_webhook_url, non versionné
       - ./monitoring/alertmanager/secrets:/etc/alertmanager/secrets:ro
       - alertmanager-data:/alertmanager
     ports:
       - "127.0.0.1:9093:9093"
     restart: unless-stopped
 
-  # CPU, mémoire, disque de la machine hôte (méthode USE)
   node-exporter:
     image: prom/node-exporter:v1.8.2
     command:
@@ -66,7 +57,6 @@ services:
       - /:/host:ro
     restart: unless-stopped
 
-  # pg_up, connexions, taille de la base
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
     environment:
@@ -78,7 +68,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # sonde HTTP sur /health : ce que voit un client de l'extérieur de l'application
   blackbox:
     image: prom/blackbox-exporter:v0.25.0
     command:

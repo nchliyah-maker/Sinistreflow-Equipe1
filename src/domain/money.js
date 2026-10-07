@@ -6,12 +6,12 @@ const { ValidationError } = require('./errors');
  */
 function parseAmountToCents(input) {
   if (input === undefined || input === null || input === '') return null;
-  // Format français : espaces (y compris insécables) pour les milliers, virgule pour les décimales
+  // format français : espaces pour les milliers, virgule décimale
   const normalized = String(input).replace(/\s/g, '').replace(',', '.');
   if (!/^\d+(\.\d{1,2})?$/.test(normalized)) {
     throw new ValidationError('Montant estimé invalide', [`"${input}" n'est pas un montant valide`]);
   }
-  // Math.round : 19.99 * 100 vaut 1998.9999999999998 en JavaScript
+  // 19.99 * 100 vaut 1998.99... en JavaScript
   return Math.round(Number(normalized) * 100);
 }
 

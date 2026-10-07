@@ -33,4 +33,3 @@ describe('SF-113 : montants saisis au format français', () => {
     expect(parseAmountToCents(null)).toBeNull();
   });
 });
-

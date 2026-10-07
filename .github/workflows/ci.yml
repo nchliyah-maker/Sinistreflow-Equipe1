@@ -5,7 +5,6 @@ on:
   push:
     branches: [main]
 
-# Une seule exécution à la fois par branche : un nouveau push annule la précédente
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -22,13 +21,11 @@ env:
   DB_USER: sinistreflow
   DB_NAME: sinistreflow
   BACKOFFICE_USER: gestionnaire-ci
-  # Les secrets viennent de Settings > Secrets and variables > Actions, jamais du dépôt
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   BACKOFFICE_PASSWORD: ${{ secrets.BACKOFFICE_PASSWORD }}
   EXPERTAUTO_API_KEY: ${{ secrets.EXPERTAUTO_API_KEY }}
 
 jobs:
-  # ---------------------------------------------------------------- qualité rapide
   commits:
     name: commits
     if: github.event_name == 'pull_request'
@@ -71,7 +68,6 @@ jobs:
           path: coverage/
           if-no-files-found: ignore
 
-  # ---------------------------------------------------------------- tests avec vraie base
   integration:
     name: integration
     needs: unit
@@ -164,7 +160,6 @@ jobs:
             test-results/
           retention-days: 7
 
-  # ---------------------------------------------------------------- recette partenaire
   partner:
     name: partner
     needs: [integration, e2e]
@@ -201,7 +196,6 @@ jobs:
         if: always()
         run: docker compose down -v
 
-  # ---------------------------------------------------------------- livraison (main seulement)
   docker:
     name: docker
     needs: partner
