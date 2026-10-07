@@ -22,6 +22,7 @@ Les post-mortems sont dans [../JOURNAL.md](../JOURNAL.md), jour 3.
 | [gameday-1-panne-base-grafana.png](gameday-1-panne-base-grafana.png) | tableau de bord pendant la panne |
 | [gameday-1-panne-base-prometheus-alertes.png](gameday-1-panne-base-prometheus-alertes.png) | règles d'alerte déclenchées dans Prometheus |
 | [gameday-1-panne-base-alertmanager.png](gameday-1-panne-base-alertmanager.png) | alertes reçues par Alertmanager |
+| [gameday-1-panne-base-discord.txt](gameday-1-panne-base-discord.txt) | même panne rejouée avec le webhook Discord : 6 notifications envoyées, 0 échec |
 | [gameday-2-pluie-erreurs.txt](gameday-2-pluie-erreurs.txt) | 200 appels avec une mauvaise clé API |
 | [gameday-2-pluie-erreurs-grafana.png](gameday-2-pluie-erreurs-grafana.png) | tableau de bord après la pluie d'erreurs |
 | [gameday-3-mauvaise-livraison.txt](gameday-3-mauvaise-livraison.txt) | image cassée : retour arrière automatique en 42 secondes |
@@ -34,7 +35,5 @@ Les post-mortems sont dans [../JOURNAL.md](../JOURNAL.md), jour 3.
 
 ## Ce qui n'est pas prouvé ici
 
-- La notification Discord : les alertes arrivent dans Alertmanager, mais le webhook n'est pas
-  encore configuré.
 - Le `docker pull` depuis GHCR sur la VM : le paquet est privé et la VM n'a pas de jeton.
   L'image déployée a été construite sur la VM à partir du même commit.
