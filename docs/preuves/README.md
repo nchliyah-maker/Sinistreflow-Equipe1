@@ -9,6 +9,7 @@ Ubuntu 24.04 LTS, 2 vCPU, 4 Go, créée avec `deploy/vm/Vagrantfile` (VirtualBox
 | Fichier | Ce qu'il montre |
 |---------|-----------------|
 | [vm-deploiement-connecteur-25-sur-25.txt](vm-deploiement-connecteur-25-sur-25.txt) | `deploy.sh` sur la VM, puis le connecteur ExpertAuto lancé depuis la VM : 25/25 |
+| [vm-deploiement-image-ghcr.txt](vm-deploiement-image-ghcr.txt) | `deploy.sh` avec l'image publiée par le pipeline, téléchargée depuis GHCR : connecteur à 25/25 |
 | [vm-securite-acces.txt](vm-securite-acces.txt) | `ufw status`, réglages SSH effectifs, connexions root et par mot de passe refusées, ports joignables depuis le poste, `/metrics` en 403 |
 | [grafana-vm-etat-normal.png](grafana-vm-etat-normal.png) | tableau de bord Grafana, état normal |
 
@@ -36,5 +37,5 @@ Les post-mortems sont dans [../JOURNAL.md](../JOURNAL.md), jour 3.
 
 ## Ce qui n'est pas prouvé ici
 
-- Le `docker pull` depuis GHCR sur la VM : le paquet est privé et la VM n'a pas de jeton.
-  L'image déployée a été construite sur la VM à partir du même commit.
+- Le retour arrière (scénario 3) a été joué avec une image cassée construite sur la VM, pas
+  avec une image tirée de GHCR.

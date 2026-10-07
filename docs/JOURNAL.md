@@ -233,8 +233,11 @@ La note "À revoir plus tard" du jour 2 est traitée : une erreur 500 répond ma
   la première valeur lue). Mon fichier s'appelle maintenant 00-sinistreflow.conf et le
   script vérifie le résultat avec sshd -T.
 - L'image GHCR est privée : sans jeton sur la VM, docker pull est refusé. L'image a été
-  construite sur la VM à partir du même commit, puis déployée par deploy.sh. Pour un vrai
-  pull il faut un docker login ghcr.io avec un jeton en lecture.
+  construite sur la VM à partir du même commit, puis déployée par deploy.sh. Le dépôt
+  étant passé en public, j'ai ensuite rendu le paquet public lui aussi (le dépôt et le
+  paquet ont chacun leur réglage de visibilité) : à 14:04, deploy.sh a téléchargé l'image
+  du commit 8673615 publiée par le pipeline, en 5 secondes, et le connecteur est resté à
+  25/25. Preuve dans docs/preuves/vm-deploiement-image-ghcr.txt.
 - Pas assez de mémoire pour faire tourner Docker Desktop et la VM en même temps : il faut
   arrêter Docker sur le PC pendant qu'on travaille sur la VM.
 - Le webhook Discord n'existait pas pendant le premier test de panne : les alertes
@@ -323,7 +326,7 @@ Scénario rejoué à 13:37 avec la notification Discord branchée (panne de 3 mi
 |---|---|---|
 | Fréquence de déploiement | "quand Thomas avait le temps" | une image publiée à chaque fusion sur main ; déploiement sur la VM par deploy.sh |
 | Délai de mise en production | des semaines | pipeline de 3 minutes environ, puis 25 secondes de déploiement |
-| Taux d'échec des changements | inconnu | mesuré dans .deploy/historique.log : 1 échec (volontaire) sur 3 livraisons |
+| Taux d'échec des changements | inconnu | mesuré dans .deploy/historique.log : 1 échec (volontaire) sur 4 livraisons |
 | Temps de restauration | inconnu | 80 secondes pour être prévenue, 42 secondes pour un retour arrière |
 
 ### Indices ouverts

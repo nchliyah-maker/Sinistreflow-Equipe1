@@ -5,8 +5,8 @@ et quoi faire quand une alerte sonne.
 
 > État de validation : cette procédure a été exécutée le 07/10/2026 sur une VM Ubuntu 24.04 LTS
 > (VirtualBox, `deploy/vm/Vagrantfile`) : provisionnement, déploiement, connecteur à 25/25, test de panne
-> retour arrière et notification Discord. Les sorties sont dans `docs/preuves/`. Reste à valider : le
-> `docker pull` depuis GHCR avec un jeton.
+> retour arrière, notification Discord et déploiement de l'image tirée de GHCR. Les sorties sont dans
+> `docs/preuves/`.
 
 ## 1. Vue d'ensemble
 
@@ -57,8 +57,8 @@ Prérequis : Ubuntu 24.04 LTS, 2 vCPU, 4 Go de RAM, 20 Go de disque, un accès S
    Renseigner `NODE_ENV=production`, `DB_PASSWORD`, `BACKOFFICE_USER`, `BACKOFFICE_PASSWORD`,
    `GRAFANA_ADMIN_PASSWORD` et `EXPERTAUTO_API_KEY`. Cette dernière est la clé transmise à
    ExpertAuto : la base n'en stocke que le hachage, elle ne peut pas être changée de notre côté.
-6. **Autoriser la VM à lire l'image** (paquet GHCR privé) : `docker login ghcr.io` avec un jeton
-   GitHub limité à `read:packages`.
+6. **Autoriser la VM à lire l'image** : le paquet GHCR est public, il n'y a rien à faire. S'il
+   redevenait privé : `docker login ghcr.io` avec un jeton GitHub limité à `read:packages`.
 7. **Démarrer la base et restaurer le dump** :
    ```bash
    docker compose up -d --wait db

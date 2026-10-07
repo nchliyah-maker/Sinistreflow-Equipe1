@@ -1,0 +1,115 @@
+Déploiement sur la VM de l'image publiée par le pipeline, téléchargée depuis GHCR (docker pull réel).
+Image : celle du commit 8673615 de main, construite et publiée par le job docker de GitHub Actions.
+Commandes lancées sur la VM par l'utilisateur deploy, sans docker login : le paquet GHCR est public.
+Les heures affichées sont celles de la VM (UTC).
+
+$ docker image rm ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b (pour forcer un vrai téléchargement)
+Error response from daemon: No such image: ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b
+$ bash deploy/deploy.sh ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b
+2026-10-07 14:04:33  Déploiement de ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b (version en service : ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a)
+2026-10-07 14:04:33  1/4 Récupération de l'image
+ Image ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b Pulling 
+ Image ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b Pulled 
+2026-10-07 14:04:38  2/4 Migrations puis démarrage de l'application
+ Container sinistreflow-alertmanager-1 Running 
+ Container sinistreflow-db-1 Running 
+ Container sinistreflow-postgres-exporter-1 Running 
+ Container sinistreflow-node-exporter-1 Running 
+ Container sinistreflow-blackbox-1 Running 
+ Container sinistreflow-prometheus-1 Running 
+ Container sinistreflow-grafana-1 Running 
+ Container sinistreflow-migrate-1 Recreate 
+ Container sinistreflow-migrate-1 Recreated 
+ Container sinistreflow-app-1 Recreate 
+ Container sinistreflow-app-1 Recreated 
+ Container sinistreflow-db-1 Waiting 
+ Container sinistreflow-db-1 Waiting 
+ Container sinistreflow-db-1 Healthy 
+ Container sinistreflow-migrate-1 Starting 
+ Container sinistreflow-db-1 Healthy 
+ Container sinistreflow-migrate-1 Started 
+ Container sinistreflow-db-1 Waiting 
+ Container sinistreflow-migrate-1 Waiting 
+ Container sinistreflow-db-1 Healthy 
+ Container sinistreflow-migrate-1 Exited 
+ Container sinistreflow-app-1 Starting 
+ Container sinistreflow-app-1 Started 
+ Container sinistreflow-db-1 Waiting 
+ Container sinistreflow-app-1 Waiting 
+ Container sinistreflow-migrate-1 Waiting 
+ Container sinistreflow-blackbox-1 Waiting 
+ Container sinistreflow-grafana-1 Waiting 
+ Container sinistreflow-postgres-exporter-1 Waiting 
+ Container sinistreflow-node-exporter-1 Waiting 
+ Container sinistreflow-prometheus-1 Waiting 
+ Container sinistreflow-alertmanager-1 Waiting 
+ Container sinistreflow-blackbox-1 Healthy 
+ Container sinistreflow-grafana-1 Healthy 
+ Container sinistreflow-migrate-1 Exited 
+ Container sinistreflow-db-1 Healthy 
+ Container sinistreflow-prometheus-1 Healthy 
+ Container sinistreflow-node-exporter-1 Healthy 
+ Container sinistreflow-alertmanager-1 Healthy 
+ Container sinistreflow-postgres-exporter-1 Healthy 
+ Container sinistreflow-app-1 Healthy 
+2026-10-07 14:05:00  3/4 Attente de http://127.0.0.1:3000/health
+2026-10-07 14:05:00  4/4 Recette du connecteur ExpertAuto
+ExpertAuto - connecteur SinistreFlow v2.6.1
+Cible : http://127.0.0.1:3000  |  07/10/2026 14:05:00
+
+[1/5] Disponibilité de SinistreFlow
+   OK   GET /health répond 200
+   OK   statut applicatif UP
+
+[2/5] Dossiers en attente d'expertise (API v1)
+   OK   GET /api/v1/claims répond 200
+   OK   au moins un dossier en attente d'expertise
+   OK   champs v1 présents (reference, numero_contrat, date_sinistre, statut, immatriculation)
+   OK   statut des dossiers = EXPERTISE_EN_COURS
+   OK   immatriculation renseignée sur les dossiers auto
+   -> dossier traité : SIN-2026-000438
+
+[3/5] Détail du dossier SIN-2026-000438 (API v2)
+   OK   GET /api/v2/claims/{ref} répond 200
+   OK   vehiclePlate au format AA-123-AA
+   OK   estimatedAmountCents est un entier
+   OK   incidentDate au format AAAA-MM-JJ
+   OK   incidentDate v2 = date_sinistre v1
+
+[4/5] Dépôt du rapport d'expertise (API v2)
+   OK   POST /api/v2/claims/{ref}/expertise répond 201
+   OK   statut v2 = EXPERTISE_TERMINEE
+   OK   indemnityCents est un entier
+
+[5/5] Contrôle du dossier mis à jour (API v3 + v1)
+   OK   GET /api/v3/claims/{ref} répond 200
+   OK   statut v3 = ASSESSMENT_DONE
+   OK   montant expertisé enregistré
+   OK   indemnité = expertise - franchise (plancher 0)
+   OK   date de rendez-vous enregistrée telle qu'envoyée
+   OK   immatriculation identique en v2 et v3
+   OK   date du sinistre identique en v2 et v3
+   OK   GET /api/v1/claims/{ref} répond 200
+   OK   statut v1 = EXPERTISE_TERMINEE
+   OK   immatriculation v1 = v2
+
+SYNCHRONISATION CONFORME : 25/25 contrôles OK
+2026-10-07 14:05:01  Déploiement réussi : ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b est en service.
+code de sortie : 0
+
+$ docker image inspect (RepoDigests)
+ghcr.io/nchliyah-maker/sinistreflow-equipe1@sha256:a505729ebe1b25343a80ae7b92e6888ef4f87a66d26812fe6db4480ed9819f94
+$ docker compose ps
+alertmanager | prom/alertmanager:v0.28.1 | Up 28 minutes
+app | ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b | Up 7 seconds (healthy)
+blackbox | prom/blackbox-exporter:v0.25.0 | Up 28 minutes
+db | postgres:16 | Up 23 minutes (healthy)
+grafana | grafana/grafana:11.3.0 | Up 28 minutes
+node-exporter | prom/node-exporter:v1.8.2 | Up 28 minutes
+postgres-exporter | quay.io/prometheuscommunity/postgres-exporter:v0.15.0 | Up 28 minutes
+prometheus | prom/prometheus:v2.55.1 | Up 28 minutes
+$ curl /health
+{"status":"UP","version":"3.4.2","database":"UP"}
+$ tail -2 .deploy/historique.log
+2026-10-07 10:41:52	ghcr.io/nchliyah-maker/sinistreflow-equipe1:2912eb7d355ba8f1547399ff0bfa4b4701e6b38a	RETOUR ARRIERE OK
+2026-10-07 14:05:01	ghcr.io/nchliyah-maker/sinistreflow-equipe1:867361509840ac02fcb6e5c34d23b50c1757fa8b	OK
