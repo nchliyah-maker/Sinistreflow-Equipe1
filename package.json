@@ -9,7 +9,7 @@
     "dev": "node --watch src/index.js",
     "migrate": "node src/db/migrate.js",
     "test": "jest",
-    "test:unit": "jest tests/unit",
+    "test:unit": "jest tests/unit --coverage",
     "test:e2e": "playwright test"
   },
   "engines": {
@@ -27,6 +27,14 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/domain/**/*.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 90
+      }
+    },
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/tests/e2e/"
