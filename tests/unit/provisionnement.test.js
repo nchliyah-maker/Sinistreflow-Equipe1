@@ -22,6 +22,12 @@ describe('SF-601 : script de provisionnement de la VM', () => {
     expect(script).toMatch(/^PubkeyAuthentication yes$/m);
   });
 
+  test('le réglage SSH passe avant ceux du système et son effet réel est vérifié', () => {
+    expect(script).toContain('/etc/ssh/sshd_config.d/00-sinistreflow.conf');
+    expect(script).toContain("grep -qx 'passwordauthentication no'");
+    expect(script).toContain("grep -qx 'permitrootlogin no'");
+  });
+
   test('garde-fou : la configuration SSH est vérifiée avant d\'être rechargée', () => {
     expect(script.indexOf('sshd -t')).toBeGreaterThan(-1);
     expect(script.indexOf('sshd -t')).toBeLessThan(script.indexOf('systemctl reload ssh'));

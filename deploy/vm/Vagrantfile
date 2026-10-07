@@ -1,0 +1,18 @@
+# VM locale pour répéter le déploiement : Ubuntu 24.04 LTS, 2 vCPU, 4 Go (mission 6).
+# Usage : cd deploy/vm && vagrant up
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.hostname = "sinistreflow"
+
+  # adresse fixe sur le réseau privé VirtualBox : la VM est joignable depuis le poste
+  config.vm.network "private_network", ip: "192.168.56.10"
+
+  # pas de dossier partagé : le code arrive sur la VM comme sur un vrai serveur
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "sinistreflow-vm"
+    vb.cpus = 2
+    vb.memory = 4096
+  end
+end
