@@ -1,6 +1,7 @@
 const express = require('express');
 const pkg = require('../../package.json');
 const db = require('../db/pool');
+const logger = require('../logger');
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/health', async (req, res) => {
     await db.query('SELECT 1');
     res.json({ status: 'UP', version: pkg.version, database: 'UP' });
   } catch (err) {
-    console.error(err);
+    logger.error('base de données injoignable', { err });
     res.status(503).json({ status: 'DOWN', version: pkg.version, database: 'DOWN' });
   }
 });

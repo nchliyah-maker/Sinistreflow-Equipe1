@@ -43,7 +43,7 @@ describe('SF-201 : l\'application écoute sur toutes les interfaces réseau', ()
     port = await freePort();
     child = spawn(process.execPath, ['src/index.js'], {
       cwd: ROOT,
-      env: { ...process.env, PORT: String(port), HOST: '' },
+      env: { ...process.env, PORT: String(port), HOST: '', LOG_LEVEL: 'info' },
     });
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('application non démarrée')), 10000);
