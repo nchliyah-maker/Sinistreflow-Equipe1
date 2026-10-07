@@ -4,7 +4,7 @@ services:
     image: postgres:16
     environment:
       POSTGRES_USER: sinistreflow
-      POSTGRES_PASSWORD: Mutu@lp2021!
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant - copier .env.example vers .env}
       POSTGRES_DB: sinistreflow
     # Lié à 127.0.0.1 : la base reste utilisable depuis le poste (tests, psql)
     # mais n'est plus joignable depuis l'extérieur de la machine.

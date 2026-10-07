@@ -37,6 +37,7 @@ région Auvergne-Rhône-Alpes, ~45 000 sociétaires).
 Prérequis : Node.js ≥ 20, Docker Desktop (ou Docker Engine), Python 3 (pour le connecteur partenaire).
 
 ```bash
+cp .env.example .env             # puis renseigner les mots de passe et la clé API
 npm install
 docker compose up -d db          # base PostgreSQL 16
 bash db/restore.sh               # restaure le dump de production
@@ -50,6 +51,17 @@ npm start                        # http://localhost:3000
 | http://localhost:3000/backoffice.html | back-office (gestionnaires) |
 | http://localhost:3000/health | état de l'application |
 | http://localhost:3000/api/v1 … /api/v3 | API partenaires (en-tête `X-API-Key`) |
+
+## Configuration et secrets
+
+La configuration passe par des variables d'environnement, listées dans `.env.example`.
+En local elles sont lues dans un fichier `.env`, qui n'est **jamais commité** (voir `.gitignore`).
+Sans `DB_PASSWORD`, `BACKOFFICE_USER` ou `BACKOFFICE_PASSWORD`, l'application refuse de démarrer :
+il n'y a plus aucun mot de passe par défaut dans le code.
+
+Les anciens secrets (base, back-office, clé API ExpertAuto) restent lisibles dans l'historique Git
+d'avant le ticket SF-204. Ils sont à considérer comme compromis : tout environnement réel doit
+utiliser des secrets neufs (`openssl rand -base64 24`).
 
 ## Arborescence
 

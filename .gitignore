@@ -6,3 +6,8 @@ npm-debug.log
 coverage/
 test-results/
 playwright-report/
+
+# secrets : seul .env.example est versionné
+.env
+.env.*
+!.env.example
