@@ -1,5 +1,7 @@
 # SinistreFlow
 
+[![CI SinistreFlow](https://github.com/nchliyah-maker/Sinistreflow-Equipe1/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nchliyah-maker/Sinistreflow-Equipe1/actions/workflows/ci.yml)
+
 Plateforme de **déclaration et de suivi des sinistres** de **MutuAlp Assurances** (mutuelle fictive,
 région Auvergne-Rhône-Alpes, ~45 000 sociétaires).
 
@@ -51,6 +53,40 @@ npm start                        # http://localhost:3000
 | http://localhost:3000/backoffice.html | back-office (gestionnaires) |
 | http://localhost:3000/health | état de l'application |
 | http://localhost:3000/api/v1 … /api/v3 | API partenaires (en-tête `X-API-Key`) |
+
+## Lancer toute la stack dans Docker
+
+```bash
+cp .env.example .env             # puis renseigner les mots de passe et la clé API
+docker compose up -d db          # la base seule
+bash db/restore.sh               # restaure le dump de production
+docker compose up -d --build     # migrations puis application, sur http://127.0.0.1:3000
+```
+
+Les migrations sont jouées automatiquement par le service `migrate` avant le démarrage de
+l'application. Les ports ne sont publiés que sur `127.0.0.1`.
+
+## Tests
+
+| Commande | Couche | Ce qui tourne |
+|----------|--------|---------------|
+| `npm run test:unit` | unitaire | `tests/unit/`, fonctions de `src/domain/`, couverture exigée ≥ 90 % |
+| `npm run test:integration` | intégration | `tests/integration/`, routes HTTP et SQL réels sur le dump restauré |
+| `npm run test:e2e` | end-to-end | `tests/e2e/`, parcours dans Chromium avec Playwright |
+| `npm test` | unitaire + intégration | toute la suite Jest |
+
+Les tests d'intégration et end-to-end ont besoin de la base (`docker compose up -d db`, dump restauré
+et migrations jouées). Ils suppriment à la fin les dossiers qu'ils créent.
+
+## Intégration continue
+
+Le pipeline `.github/workflows/ci.yml` tourne sur chaque Pull Request et sur `main` :
+`commits` (format des messages) et `unit`, puis `integration` et `e2e` sur une base PostgreSQL 16
+restaurée depuis le dump, puis `partner` qui construit l'image, démarre la stack et exécute le
+connecteur ExpertAuto non modifié.
+
+Secrets à définir dans *Settings → Secrets and variables → Actions* : `DB_PASSWORD`,
+`BACKOFFICE_PASSWORD` (valeurs libres, propres à la CI) et `EXPERTAUTO_API_KEY`.
 
 ## Configuration et secrets
 

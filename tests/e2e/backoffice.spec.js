@@ -11,6 +11,15 @@ async function login(page, user = config.backoffice.user, password = config.back
   await page.getByRole('button', { name: 'Se connecter' }).click();
 }
 
+/** Lance une recherche et attend la réponse du serveur : la liste affichée est alors à jour. */
+async function search(page, { text, status } = {}) {
+  if (text !== undefined) await page.getByPlaceholder('Référence, n° de contrat ou nom de l\'assuré').fill(text);
+  if (status !== undefined) await page.locator('#status').selectOption(status);
+  const response = page.waitForResponse((res) => res.url().includes('/api/internal/claims?'));
+  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await response;
+}
+
 /** Crée un dossier par l'API publique, pour ne pas modifier un dossier du dump. */
 async function newClaim(request) {
   const res = await request.post('/api/public/claims', {
@@ -45,8 +54,7 @@ test('le gestionnaire recherche un dossier et change son statut', async ({ page,
   await expect(page.locator('#rows tr')).toHaveCount(20);
 
   // Recherche par référence : une seule ligne
-  await page.getByPlaceholder('Référence, n° de contrat ou nom de l\'assuré').fill(reference);
-  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await search(page, { text: reference });
   await expect(page.locator('#rows tr')).toHaveCount(1);
   await expect(page.locator('#rows tr')).toContainText(reference);
   await expect(page.locator('#rows tr')).toContainText(day(-1).fr);
@@ -71,31 +79,27 @@ test('le gestionnaire recherche un dossier et change son statut', async ({ page,
 test('SF-108 : rechercher un nom avec une apostrophe fonctionne', async ({ page }) => {
   await login(page);
 
-  await page.getByPlaceholder('Référence, n° de contrat ou nom de l\'assuré').fill('D\'Almeida');
-  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await search(page, { text: 'D\'Almeida' });
 
   await expect(page.locator('#error')).toBeHidden();
-  await expect(page.locator('#rows tr').first()).toBeVisible();
+  await expect(page.locator('#rows tr')).not.toHaveCount(0);
+  await expect(page.locator('#rows tr')).not.toHaveCount(20);
 });
 
 test('SF-107 : le filtre EXPERTISE_EN_COURS affiche bien des dossiers', async ({ page }) => {
   await login(page);
 
-  await page.locator('#status').selectOption('EXPERTISE_EN_COURS');
-  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await search(page, { status: 'EXPERTISE_EN_COURS' });
 
-  await expect(page.locator('#rows tr').first()).toBeVisible();
-  for (const row of await page.locator('#rows tr').all()) {
-    // eslint-disable-next-line no-await-in-loop
-    await expect(row).toContainText('EXPERTISE_EN_COURS');
-  }
+  await expect(page.locator('#rows tr')).not.toHaveCount(0);
+  await expect(page.locator('#rows tr').filter({ hasNotText: 'EXPERTISE_EN_COURS' })).toHaveCount(0);
 });
 
 test('SF-105 : un dossier refusé ne propose pas le bouton d\'indemnisation', async ({ page }) => {
   await login(page);
 
-  await page.getByPlaceholder('Référence, n° de contrat ou nom de l\'assuré').fill('SIN-2024-000212');
-  await page.getByRole('button', { name: 'Rechercher' }).click();
+  await search(page, { text: 'SIN-2024-000212' });
+  await expect(page.locator('#rows tr')).toHaveCount(1);
   await page.locator('#rows tr').click();
 
   const detail = page.locator('#detail');

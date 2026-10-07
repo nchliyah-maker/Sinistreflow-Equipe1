@@ -1,0 +1,202 @@
+name: CI SinistreFlow
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Une seule exécution à la fois par branche : un nouveau push annule la précédente
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # SF-111 ne se reproduit pas en UTC : les tests tournent dans le fuseau de la production
+  TZ: Europe/Paris
+  NODE_ENV: test
+  DB_HOST: localhost
+  DB_PORT: "5432"
+  DB_USER: sinistreflow
+  DB_NAME: sinistreflow
+  BACKOFFICE_USER: gestionnaire-ci
+  # Les secrets viennent de Settings > Secrets and variables > Actions, jamais du dépôt
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  BACKOFFICE_PASSWORD: ${{ secrets.BACKOFFICE_PASSWORD }}
+  EXPERTAUTO_API_KEY: ${{ secrets.EXPERTAUTO_API_KEY }}
+
+jobs:
+  # ---------------------------------------------------------------- qualité rapide
+  commits:
+    name: commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Vérifier le format des messages de commit
+        run: |
+          status=0
+          while IFS= read -r message; do
+            if echo "$message" | grep -Eq '^(fix|feat|test|ci|docs|refactor|chore|build|perf)(\(SF-[0-9]+\))?: .+'; then
+              echo "OK    $message"
+            else
+              echo "::error::Message de commit non conforme : $message"
+              status=1
+            fi
+          done < <(git log --no-merges --format=%s "origin/${{ github.base_ref }}..HEAD")
+          exit $status
+
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests unitaires (couverture du domaine >= 90 %)
+        run: npm run test:unit
+      - name: Rapport de couverture
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: couverture
+          path: coverage/
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------- tests avec vraie base
+  integration:
+    name: integration
+    needs: unit
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sinistreflow
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: sinistreflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sinistreflow -d sinistreflow"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Fichier .env (lu par docker compose config)
+        run: |
+          cat > .env <<EOF
+          NODE_ENV=test
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_USER=sinistreflow
+          DB_NAME=sinistreflow
+          DB_PASSWORD=${DB_PASSWORD}
+          BACKOFFICE_USER=${BACKOFFICE_USER}
+          BACKOFFICE_PASSWORD=${BACKOFFICE_PASSWORD}
+          EXPERTAUTO_API_KEY=${EXPERTAUTO_API_KEY}
+          EOF
+      - name: Restaurer le dump de production
+        run: psql -v ON_ERROR_STOP=1 -q -h localhost -U sinistreflow -d sinistreflow -f db/dump/sinistreflow_prod_2026-09-28.sql > /dev/null
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+      - name: Jouer les migrations en attente
+        run: npm run migrate
+      - name: Tests d'intégration
+        run: npm run test:integration
+
+  e2e:
+    name: e2e
+    needs: unit
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sinistreflow
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: sinistreflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sinistreflow -d sinistreflow"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Installer Chromium pour Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Restaurer le dump de production
+        run: psql -v ON_ERROR_STOP=1 -q -h localhost -U sinistreflow -d sinistreflow -f db/dump/sinistreflow_prod_2026-09-28.sql > /dev/null
+        env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+      - name: Jouer les migrations en attente
+        run: npm run migrate
+      - name: Tests end-to-end
+        run: npm run test:e2e
+      - name: Rapport Playwright (traces et captures)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  # ---------------------------------------------------------------- recette partenaire
+  partner:
+    name: partner
+    needs: [integration, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fichier .env de la stack
+        run: |
+          cat > .env <<EOF
+          NODE_ENV=production
+          PORT=3000
+          DB_USER=sinistreflow
+          DB_NAME=sinistreflow
+          DB_PASSWORD=${DB_PASSWORD}
+          BACKOFFICE_USER=${BACKOFFICE_USER}
+          BACKOFFICE_PASSWORD=${BACKOFFICE_PASSWORD}
+          EOF
+      - name: Démarrer la base
+        run: docker compose up -d --wait db
+      - name: Restaurer le dump de production
+        run: bash db/restore.sh
+      - name: Construire l'image et démarrer la stack (migrations puis application)
+        run: docker compose up -d --build --wait app
+      - name: Vérifier /health
+        run: curl --fail --silent --show-error http://127.0.0.1:3000/health
+      - name: Recette du connecteur ExpertAuto (code non modifié)
+        run: python3 partner-client/expertauto_sync.py
+        env:
+          SINISTREFLOW_URL: http://127.0.0.1:3000
+      - name: Journaux de la stack
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Arrêter la stack
+        if: always()
+        run: docker compose down -v
