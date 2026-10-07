@@ -3,6 +3,16 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+# règles d'alerte, évaluées toutes les 15 s
+rule_files:
+  - alerts.yml
+
+# les alertes actives sont envoyées à Alertmanager, qui prévient l'équipe
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
 scrape_configs:
   # l'application : RED par route, pool PostgreSQL, métriques métier, Node.js
   - job_name: sinistreflow

@@ -91,6 +91,26 @@ Sur `main` uniquement, le job `docker` publie l'image sur GitHub Container Regis
 Secrets à définir dans *Settings → Secrets and variables → Actions* : `DB_PASSWORD`,
 `BACKOFFICE_PASSWORD` (valeurs libres, propres à la CI) et `EXPERTAUTO_API_KEY`.
 
+## Supervision
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d --build
+```
+
+| Outil | Adresse (machine locale uniquement) | Rôle |
+|-------|-------------------------------------|------|
+| Grafana | http://127.0.0.1:3001/grafana/ (compte `admin`, mot de passe `GRAFANA_ADMIN_PASSWORD`) | tableau de bord « SinistreFlow - Vue d'ensemble » |
+| Prometheus | http://127.0.0.1:9090 | métriques, cibles, état des alertes |
+| Alertmanager | http://127.0.0.1:9093 | alertes actives, envoi sur Discord |
+
+- L'application expose ses métriques sur `/metrics` (RED par route, pool PostgreSQL, métriques
+  métier) et écrit ses journaux en JSON, une ligne par événement, sur la sortie standard
+  (`docker compose logs app`).
+- Tout est configuré par fichiers versionnés dans `monitoring/` : cibles Prometheus, règles
+  d'alerte (`monitoring/prometheus/alerts.yml`), source de données et tableau de bord Grafana.
+- Pour recevoir les alertes, placer l'URL du webhook Discord dans
+  `monitoring/alertmanager/secrets/discord_webhook_url` (dossier ignoré par Git).
+
 ## Configuration et secrets
 
 La configuration passe par des variables d'environnement, listées dans `.env.example`.

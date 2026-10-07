@@ -41,6 +41,21 @@ services:
       - prometheus
     restart: unless-stopped
 
+  # regroupe les alertes et les envoie sur Discord
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      # contient discord_webhook_url, jamais commité
+      - ./monitoring/alertmanager/secrets:/etc/alertmanager/secrets:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "127.0.0.1:9093:9093"
+    restart: unless-stopped
+
   # CPU, mémoire, disque de la machine hôte (méthode USE)
   node-exporter:
     image: prom/node-exporter:v1.8.2
@@ -75,3 +90,4 @@ services:
 volumes:
   prometheus-data:
   grafana-data:
+  alertmanager-data:
