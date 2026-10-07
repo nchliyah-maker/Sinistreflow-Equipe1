@@ -12,6 +12,7 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sinistreflow -d sinistreflow"]
       interval: 5s
@@ -47,6 +48,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    # relancé par Docker s'il s'arrête (panne, redémarrage de la machine)
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 10s
