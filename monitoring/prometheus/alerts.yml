@@ -1,0 +1,78 @@
+# Règles d'alerte de SinistreFlow.
+# "for" = durée pendant laquelle la condition doit rester vraie avant de prévenir quelqu'un
+# (évite de réveiller l'équipe pour un incident d'une seconde).
+# La réaction attendue pour chaque alerte est décrite dans docs/RUNBOOK.md.
+groups:
+  - name: sinistreflow-disponibilite
+    rules:
+      - alert: ApplicationInjoignable
+        expr: up{job="sinistreflow"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SinistreFlow ne répond plus à Prometheus"
+          description: "La cible {{ $labels.instance }} est injoignable depuis plus d'une minute."
+
+      - alert: SanteEnEchec
+        expr: probe_success{job="blackbox"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "/health est en échec"
+          description: "La sonde HTTP sur {{ $labels.instance }} échoue depuis plus d'une minute (503 quand la base est en panne)."
+
+      - alert: BaseDeDonneesInjoignable
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL est injoignable"
+          description: "postgres-exporter n'arrive plus à se connecter à la base depuis plus d'une minute."
+
+  - name: sinistreflow-qualite-de-service
+    rules:
+      - alert: TauxErreurs5xxEleve
+        expr: |
+          100 * sum(rate(sinistreflow_http_requests_total{status=~"5.."}[5m]))
+            / sum(rate(sinistreflow_http_requests_total[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Plus de 5 % des requêtes finissent en erreur 5xx"
+          description: "Taux d'erreurs serveur : {{ $value | printf \"%.1f\" }} % sur 5 minutes."
+
+      - alert: LatenceP95Elevee
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(sinistreflow_http_request_duration_seconds_bucket[5m]))) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "La latence p95 dépasse 1 seconde"
+          description: "95 % des requêtes répondent en {{ $value | printf \"%.2f\" }} s ou moins, au lieu de 1 s."
+
+  - name: sinistreflow-ressources
+    rules:
+      - alert: DisquePresquePlein
+        expr: |
+          100 * node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}
+            / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Moins de 10 % d'espace disque libre"
+          description: "Il reste {{ $value | printf \"%.1f\" }} % d'espace libre sur {{ $labels.mountpoint }}."
+
+      - alert: PoolPostgresSature
+        expr: sinistreflow_db_pool_connections{state="waiting"} > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Des requêtes attendent une connexion à la base"
+          description: "{{ $value }} requête(s) en attente d'une connexion du pool depuis 5 minutes."

@@ -1,0 +1,26 @@
+# Alertmanager regroupe les alertes, évite les doublons et prévient l'équipe sur Discord.
+#
+# L'URL du webhook Discord est un secret : elle n'est PAS dans ce fichier. Elle est lue dans
+#   monitoring/alertmanager/secrets/discord_webhook_url
+# (dossier ignoré par Git, à créer sur chaque machine, voir docs/RUNBOOK.md).
+route:
+  receiver: equipe-sinistreflow
+  group_by: [alertname]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 1h
+
+receivers:
+  - name: equipe-sinistreflow
+    discord_configs:
+      - webhook_url_file: /etc/alertmanager/secrets/discord_webhook_url
+        send_resolved: true
+        title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})'
+        message: '{{ range .Alerts }}{{ .Annotations.summary }} - {{ .Annotations.description }}{{ "\n" }}{{ end }}'
+
+# Quand l'application est injoignable, inutile de recevoir en plus les alertes qui en découlent
+inhibit_rules:
+  - source_matchers: [alertname = "ApplicationInjoignable"]
+    target_matchers: [alertname =~ "SanteEnEchec|TauxErreurs5xxEleve|LatenceP95Elevee"]
+  - source_matchers: [alertname = "BaseDeDonneesInjoignable"]
+    target_matchers: [alertname =~ "SanteEnEchec|TauxErreurs5xxEleve"]
