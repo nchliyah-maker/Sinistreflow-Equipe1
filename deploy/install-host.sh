@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# Installe sur la VM ce qui vit en dehors de Docker : le site nginx et les tâches planifiées.
-# À lancer en root, une fois le dépôt présent dans /opt/sinistreflow :
-#   sudo bash /opt/sinistreflow/deploy/install-host.sh
-# Peut être relancé après chaque modification de deploy/nginx/ ou des tâches planifiées.
+# Installe le site nginx et les tâches planifiées. Usage : sudo bash deploy/install-host.sh
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/sinistreflow}"

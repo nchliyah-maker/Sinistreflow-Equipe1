@@ -1,6 +1,5 @@
 const { defineConfig, devices } = require('@playwright/test');
 
-// Port dédié aux tests end-to-end, pour ne pas dépendre d'un "npm start" déjà lancé
 const PORT = process.env.E2E_PORT || '3100';
 
 module.exports = defineConfig({

@@ -1,24 +1,8 @@
 #!/usr/bin/env bash
 # Déploiement de SinistreFlow avec retour arrière automatique.
-#
-# Usage (sur la VM, utilisateur deploy) :
-#   bash deploy/deploy.sh ghcr.io/nchliyah-maker/sinistreflow-equipe1:<sha du commit>
-#
-# Étapes :
-#   1. récupère l'image demandée
-#   2. démarre la stack : la base, les migrations (service "migrate"), puis l'application
-#   3. attend que /health réponde 200
-#   4. lance le connecteur ExpertAuto (recette du partenaire)
-#   5. en cas d'échec d'une étape : revient seul à l'image précédente
-#
-# Attention : revenir à l'image précédente ne "dé-migre" pas la base. Une migration doit donc
-# rester compatible avec la version N-1 du code (on ajoute, on ne renomme ni ne supprime).
-#
-# Variables utiles :
-#   APP_DIR=/opt/sinistreflow   dossier du dépôt
-#   WITH_MONITORING=1           démarre aussi Prometheus, Grafana, Alertmanager (0 pour non)
-#   RUN_CONNECTOR=1             lance le connecteur après le déploiement (0 pour non)
-#   SKIP_PULL=0                 1 pour une image déjà présente sur la machine (répétition locale)
+# Usage : bash deploy/deploy.sh ghcr.io/nchliyah-maker/sinistreflow-equipe1:<sha>
+# Options : WITH_MONITORING, RUN_CONNECTOR, SKIP_PULL, HEALTH_TIMEOUT (voir docs/RUNBOOK.md)
+# Attention : revenir à l'image précédente ne "dé-migre" pas la base.
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/sinistreflow}"
@@ -46,17 +30,13 @@ fi
 log() { printf '%s  %s\n' "$(date '+%F %T')" "$*"; }
 record() { printf '%s\t%s\t%s\n' "$(date '+%F %T')" "$1" "$2" >> "$HISTORY"; }
 
-# Image actuellement en service (vide lors du tout premier déploiement)
 PREVIOUS_IMAGE=""
 [ -f "${STATE_DIR}/image_courante" ] && PREVIOUS_IMAGE="$(cat "${STATE_DIR}/image_courante")"
 
-# Démarre la stack sur l'image donnée. "--wait" attend que l'application soit "healthy" :
-# les migrations ont donc réussi et /health répond.
 start_stack() {
   SINISTREFLOW_IMAGE="$1" "${COMPOSE[@]}" up -d --no-build --remove-orphans --wait --wait-timeout "$HEALTH_TIMEOUT"
 }
 
-# Vérifie /health depuis la machine, comme le ferait nginx ou un client
 wait_health() {
   local deadline=$((SECONDS + HEALTH_TIMEOUT))
   while [ "$SECONDS" -lt "$deadline" ]; do
@@ -68,7 +48,6 @@ wait_health() {
   return 1
 }
 
-# Mémorise l'image en service, aussi dans .env pour les commandes "docker compose" manuelles
 remember_image() {
   echo "$1" > "${STATE_DIR}/image_courante"
   if grep -q '^SINISTREFLOW_IMAGE=' .env; then

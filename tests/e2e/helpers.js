@@ -1,7 +1,3 @@
-/**
- * Outils communs aux tests end-to-end.
- * Les dossiers créés pendant un fichier de tests sont supprimés à la fin de ce fichier.
- */
 const { Pool } = require('pg');
 const { expect } = require('@playwright/test');
 const config = require('../../src/config');

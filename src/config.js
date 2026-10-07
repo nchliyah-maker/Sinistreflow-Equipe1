@@ -1,7 +1,6 @@
 require('dotenv').config();
 
-// Les secrets n'ont volontairement aucune valeur par défaut dans le code :
-// ils viennent de l'environnement (fichier .env en local, secrets en CI et sur la VM).
+// pas de valeur par défaut pour les secrets : ils viennent de l'environnement
 const REQUIRED = ['DB_PASSWORD', 'BACKOFFICE_USER', 'BACKOFFICE_PASSWORD'];
 
 const missing = REQUIRED.filter((name) => !process.env[name]);
@@ -15,7 +14,7 @@ if (missing.length > 0) {
 module.exports = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '3000', 10),
-  // 0.0.0.0 = toutes les interfaces : indispensable pour être joignable dans un conteneur
+  // 0.0.0.0 : joignable depuis l'extérieur du conteneur
   host: process.env.HOST || '0.0.0.0',
   db: {
     host: process.env.DB_HOST || 'localhost',

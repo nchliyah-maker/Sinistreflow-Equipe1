@@ -1,7 +1,3 @@
-# Règles d'alerte de SinistreFlow.
-# "for" = durée pendant laquelle la condition doit rester vraie avant de prévenir quelqu'un
-# (évite de réveiller l'équipe pour un incident d'une seconde).
-# La réaction attendue pour chaque alerte est décrite dans docs/RUNBOOK.md.
 groups:
   - name: sinistreflow-disponibilite
     rules:

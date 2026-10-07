@@ -6,8 +6,7 @@ services:
       POSTGRES_USER: sinistreflow
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant - copier .env.example vers .env}
       POSTGRES_DB: sinistreflow
-    # Lié à 127.0.0.1 : la base reste utilisable depuis le poste (tests, psql)
-    # mais n'est plus joignable depuis l'extérieur de la machine.
+    # lié à 127.0.0.1 : la base n'est pas joignable depuis l'extérieur
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -19,11 +18,9 @@ services:
       timeout: 3s
       retries: 10
 
-  # Joue les migrations en attente puis s'arrête (code 0 si tout va bien).
-  # L'application ne démarre qu'après : plus besoin de "penser à" lancer npm run migrate.
+  # joue les migrations puis s'arrête ; l'application démarre ensuite
   migrate:
-    # En local l'image est construite (build). Sur la VM, deploy/deploy.sh fixe SINISTREFLOW_IMAGE
-    # sur l'image publiée par la CI (ghcr.io/...:<sha du commit>).
+    # sur la VM, deploy.sh fixe SINISTREFLOW_IMAGE sur l'image publiée par la CI
     image: ${SINISTREFLOW_IMAGE:-sinistreflow:local}
     build: .
     command: ["node", "src/db/migrate.js"]
@@ -43,8 +40,7 @@ services:
       - "127.0.0.1:3000:3000"
     env_file: .env
     environment:
-      # Dans un conteneur, localhost désigne le conteneur lui-même :
-      # la base se joint par le nom de son service.
+      # dans un conteneur, localhost désigne le conteneur lui-même
       DB_HOST: db
       DB_PORT: "5432"
     depends_on:
@@ -52,7 +48,6 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    # relancé par Docker s'il s'arrête (panne, redémarrage de la machine)
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]

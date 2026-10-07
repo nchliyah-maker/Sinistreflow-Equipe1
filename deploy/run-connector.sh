@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Lance le connecteur ExpertAuto (code du partenaire, non modifié) contre l'application locale.
-# La clé API est lue dans le fichier .env de l'application, jamais passée en argument.
+# Lance le connecteur ExpertAuto ; la clé API est lue dans .env.
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/sinistreflow}"

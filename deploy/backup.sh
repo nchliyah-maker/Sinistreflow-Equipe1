@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Sauvegarde de la base PostgreSQL (pg_dump compressé), lancée chaque nuit par cron.
-# Garde les 14 dernières sauvegardes. Restauration : voir docs/RUNBOOK.md.
+# Sauvegarde de la base (pg_dump compressé), 14 fichiers conservés.
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/sinistreflow}"
@@ -15,7 +14,6 @@ docker compose exec -T db pg_dump -U sinistreflow -d sinistreflow --no-owner | g
 mv "${file}.tmp" "$file"
 chmod 600 "$file"
 
-# ne garder que les $KEEP sauvegardes les plus récentes
 find "$BACKUP_DIR" -maxdepth 1 -name 'sinistreflow_*.sql.gz' -printf '%T@ %p\n' \
   | sort -rn | tail -n +"$((KEEP + 1))" | cut -d' ' -f2- | xargs -r rm -f
 

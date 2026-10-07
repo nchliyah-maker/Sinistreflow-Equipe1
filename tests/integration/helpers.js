@@ -1,8 +1,3 @@
-/**
- * Outils communs aux tests d'intégration.
- * Les tests tournent sur la base restaurée depuis le dump de production : tout dossier créé
- * par un test est supprimé à la fin (les expertises et l'historique partent en cascade).
- */
 const request = require('supertest');
 const app = require('../../src/app');
 const db = require('../../src/db/pool');

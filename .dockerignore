@@ -1,37 +1,28 @@
-# Tout ce qui ne doit jamais entrer dans l'image
-
-# secrets et configuration locale
 .env
 .env.*
 
-# historique et outils
 .git
 .gitignore
 .github
 .vscode
 .idea
 
-# dépendances du poste (réinstallées dans l'image avec npm ci)
 node_modules
 
-# tests et leurs résultats
 tests
 coverage
 test-results
 playwright-report
 playwright.config.js
 
-# données de production, code du partenaire, documentation
 db
 partner-client
 docs
 *.md
 
-# fichiers Docker
 Dockerfile
 .dockerignore
 docker-compose*.yml
 
-# déploiement et supervision : hors de l image
 deploy
 monitoring

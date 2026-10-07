@@ -17,3 +17,6 @@ monitoring/alertmanager/secrets/
 
 # état du déploiement sur la VM (image en service, historique)
 .deploy/
+
+# réglages locaux des outils de développement
+.claude/
